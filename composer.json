@@ -1,0 +1,35 @@
+{
+    "name": "uwla/ltags",
+    "description": "Laravel Tagging System",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/uwla/ltags",
+    "autoload": {
+        "psr-4": {
+            "Uwla\\Ltags\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "uwla"
+        }
+    ],
+    "require": {
+        "illuminate/database": "^10.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0",
+        "phpunit/phpunit": "^10.0"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Uwla\\Ltags\\TagsServiceProvider"
+            ]
+        }
+    }
+}
