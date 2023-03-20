@@ -5,9 +5,12 @@ namespace Uwla\Ltags\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Uwla\Ltags\Contracts\Tag as TagContract;
+use Uwla\Ltags\Traits\Taggable;
 
 class Tag extends Model implements TagContract
 {
+    use Taggable;
+
     /**
      * Find the given tag by name.
      *

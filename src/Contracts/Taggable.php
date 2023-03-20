@@ -5,6 +5,13 @@ namespace Uwla\Ltags\Contracts;
 interface Taggable
 {
     /**
+     * Get the tag namspace for this model.
+     *
+     * @return string
+     */
+    public function getTagNamespace();
+
+    /**
      * Get the tags associated with this model
      *
      * @param int $depth=1 The depth of the search for nested tags.
