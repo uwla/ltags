@@ -11,15 +11,17 @@ interface Tag
      * Find the given tag by name.
      *
      * @param  string $name
+     * @param  string $namespace=null
      * @return Illuminate\Database\Eloquent\Model;
      */
-    public function findByName($name): Model;
+    public static function findByName($name, $namespace=null): Model;
 
     /**
      * Find the given tags by name.
      *
      * @param  array<string> $names
+     * @param  string        $namespace=null
      * @return Illuminate\Database\Eloquent\Model;
      */
-    public function findManyByName($names): Collection;
+    public static function findManyByName($names, $namespace=null): Collection;
 }
