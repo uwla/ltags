@@ -216,8 +216,8 @@ Trait Taggable
 
         // we will get the ids of the given tags
         // and also the ids of the this model's tags
-        $a = $tags->pluck('tag_id')->toArray();
-        $b = $this_tags->pluck('tag_id')->toArray();
+        $a = $tags->pluck('id')->toArray();
+        $b = $this_tags->pluck('id')->toArray();
 
         // then, we will perform an efficient search to
         // count how many items from subset A are in subset B too
@@ -258,7 +258,7 @@ Trait Taggable
     // tag validation helper
     private function validateTags($tags)
     {
-        if (is_iterable($tags))
+        if (! is_countable($tags))
             throw new Exception("Expected a iterable value.");
         if (count($tags) < 1)
             throw new Exception("Got empty tags.");
@@ -268,11 +268,13 @@ Trait Taggable
 
         // get the tag models
         if (gettype($tags[0]) == 'string')
+        {
             $tags = Tag::findManyByName($tags, $namespace);
-        if (! $tags[0] instanceof TagContract)
+            if ($tags->count() < 1)
+                throw new Exception("The provided tags do not exist.");
+        } else if (! $tags[0] instanceof TagContract) {
             throw new Exception("Tag provided must be string or Eloquent model");
-        if (count($tags) < 1)
-            throw new Exception("The provided tags do not exist.");
+        }
         return $tags;
     }
 }
