@@ -12,6 +12,13 @@ class Tag extends Model implements TagContract
     use Taggable;
 
     /**
+      * The attributes that should be excluded from mass assignment.
+      *
+      * @var array<string>
+      */
+    protected $guarded = [];
+
+    /**
      * Find the given tag by name.
      *
      * @param  string $name

@@ -3,6 +3,7 @@
 namespace Uwla\Ltags\Traits;
 
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Uwla\Ltags\Models\Tag;
 use Uwla\Ltags\Models\Taggable as TaggableModel;
@@ -53,7 +54,7 @@ Trait Taggable
         foreach($tags as $tag)
         {
             $nested_tags = $tag->getTags($depth-1);
-            $otherIds = $nested_tags->pluck('tag_id')->toArray();
+            $otherIds = $nested_tags->pluck('id')->toArray();
             $ids = array_merge($ids, $otherIds);
         }
         $ids = array_unique($ids);
@@ -156,7 +157,7 @@ Trait Taggable
     public function hasAnyTags($tags, $depth=1)
     {
         $n = $this->hasHowManyTags($tags, $depth);
-        return $n > 0;
+        return $n >= 1;
     }
 
     /**
@@ -229,7 +230,7 @@ Trait Taggable
         $i = 0; $j = 0;
         while ($i < $la && $j < $lb) // linear time
         {
-            if ($a[$i] == $b[$j])
+            if ($a[$i] === $b[$j])
             {
                 $i += 1;
                 $j += 1;
@@ -256,7 +257,7 @@ Trait Taggable
     }
 
     // tag validation helper
-    private function validateTags($tags)
+    private function validateTags($tags): Collection
     {
         if (! is_countable($tags))
             throw new Exception("Expected a iterable value.");
@@ -266,15 +267,21 @@ Trait Taggable
         // the namespace for the tags
         $namespace = $this->getTagNamespace();
 
-        // get the tag models
+        // get the tag models if string
         if (gettype($tags[0]) == 'string')
         {
             $tags = Tag::findManyByName($tags, $namespace);
             if ($tags->count() < 1)
                 throw new Exception("The provided tags do not exist.");
-        } else if (! $tags[0] instanceof TagContract) {
-            throw new Exception("Tag provided must be string or Eloquent model");
         }
+
+        // check instance type
+        if (! $tags[0] instanceof TagContract)
+            throw new Exception("Tag provided must be string or Eloquent model");
+
+        if (is_array($tags))
+            $tags = collect($tags);
+
         return $tags;
     }
 }
