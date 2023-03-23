@@ -7,16 +7,29 @@ use Uwla\Ltags\Models\Tag;
 
 class TagTest extends TestCase
 {
+    public $names = [
+        'war', 'scifi', 'drama', 'comedy', 'action', 'romance'
+    ];
+
+    public function test_create_tags_by_name()
+    {
+        $names = $this->names;
+
+        $n = $names[0];
+        Tag::createOne($n);
+        $this->assertTrue(Tag::where('name', $n)->exists());
+
+        unset($names[0]);
+        Tag::createMany($names);
+        $this->assertTrue(count($names) == Tag::whereIn('name', $names)->count());
+    }
+
     public function test_get_tags_by_name()
     {
-        // tag names for movies
-        $names = [ 'war', 'scifi', 'drama', 'comedy', 'action', 'romance'];
+        $names = $this->names;
 
         // create the tags
-        $attr = [];
-        foreach ($names as $name)
-            $attr[] = ['name' => $name];
-        Tag::insert($attr);
+        Tag::createMany($names);
 
         // test find single tag
         $tag = Tag::findByName($names[0]);

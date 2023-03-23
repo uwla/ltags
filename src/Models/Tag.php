@@ -41,4 +41,32 @@ class Tag extends Model implements TagContract
     {
         return Tag::whereIn('name', $names)->where('namespace', $namespace)->get();
     }
+
+    /**
+     * Create a single tag by the given name.
+     *
+     * @param  string $name
+     * @param  string $namespace=null
+     * @return Illuminate\Database\Eloquent\Model;
+     */
+    public static function createOne($name, $namespace=null): Model
+    {
+        return Tag::create(['name' => $name, 'namespace' => $namespace]);
+    }
+
+    /**
+     * Create many tags by the given names.
+     *
+     * @param  array<string> $names
+     * @param  string        $namespace=null
+     * @return Illuminate\Database\Eloquent\Model;
+     */
+    public static function createMany($names, $namespace=null): Collection
+    {
+        $attr = [];
+        foreach ($names as $name)
+            $attr[] = ['name' => $name, 'namespace' => $namespace];
+        Tag::insert($attr);
+        return Tag::whereIn('name', $names)->where('namespace', $namespace)->get();
+    }
 }

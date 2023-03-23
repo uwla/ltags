@@ -16,14 +16,7 @@ class TaggableTest extends TestCase
     private function create_tags($n=1)
     {
         $words = $this->faker()->unique()->words($n);
-        $attr = [];
-        foreach ($words as $word)
-            $attr[] = ['name' => $word ];
-        Tag::insert($attr);
-        $tags = Tag::whereIn('name', $words)->get();
-        if ($n == 1)
-            return $tags[0];
-        return $tags;
+        return Tag::createMany($words);
     }
 
     public function test_add_tags()
@@ -108,14 +101,12 @@ class TaggableTest extends TestCase
 
     public function test_get_tags_matching()
     {
-        // make sure it starts with no tags
-        Tag::query()->delete();
-        $animal = Tag::create(['name' => 'the first']);
-        $bird = Tag::create(['name' => 'animals']);
-        $reptile = Tag::create(['name' => 'animated movies']);
-        $mammal = Tag::create(['name' => 'anime']);
-        $eagle = Tag::create(['name' => 'art']);
-        $duck = Tag::create(['name' => 'martial arts']);
+        $animal  = Tag::createOne('the first');
+        $bird    = Tag::createOne('animals');
+        $reptile = Tag::createOne('animated movies');
+        $mammal  = Tag::createOne('anime');
+        $eagle   = Tag::createOne('art');
+        $duck    = Tag::createOne('martial arts');
 
         $post = Post::factory()->createOne();
         $post->addTags(Tag::all());
@@ -149,31 +140,31 @@ class TaggableTest extends TestCase
         }
 
         // first level tags
-        $animal = Tag::create(['name' => 'animal']);
+        $animal = Tag::createOne('animal');
 
         // second level tags
-        $bird    = Tag::create(['name' => 'bird']);
-        $reptile = Tag::create(['name' => 'reptile']);
-        $mammal  = Tag::create(['name' => 'mammal']);
+        $bird    = Tag::createOne('bird');
+        $reptile = Tag::createOne('reptile');
+        $mammal  = Tag::createOne('mammal');
         $animals = collect([$bird, $reptile, $mammal]);
         $animals->each(add_tag($animal));
 
         // third level tags
-        $eagle   = Tag::create(['name' => 'eagle']);
-        $duck    = Tag::create(['name' => 'duck']);
-        $pigeon  = Tag::create(['name' => 'pigeon']);
-        $whale   = Tag::create(['name' => 'whale']);
-        $sapiens = Tag::create(['name' => 'sapiens']);
+        $eagle   = Tag::createOne('eagle');
+        $duck    = Tag::createOne('duck');
+        $pigeon  = Tag::createOne('pigeon');
+        $whale   = Tag::createOne('whale');
+        $sapiens = Tag::createOne('sapiens');
         $birds   = collect([$eagle, $duck, $pigeon]);
         $mammals = collect([$whale, $sapiens]);
         $birds->each(add_tag($bird));
         $mammals->each(add_tag($mammal));
 
         // fourth level tags
-        $homo_sapiens  = Tag::create(['name' => 'homo sapiens']);
-        $mountain_duck = Tag::create(['name' => 'mountain duck']);
-        $silver_duck   = Tag::create(['name' => 'silver duck']);
-        $wild_duck     = Tag::create(['name' => 'wild duck']);
+        $homo_sapiens  = Tag::createOne('homo sapiens');
+        $mountain_duck = Tag::createOne('mountain duck');
+        $silver_duck   = Tag::createOne('silver duck');
+        $wild_duck     = Tag::createOne('wild duck');
 
         $ducks = collect([$mountain_duck, $silver_duck, $wild_duck]);
         $Sapiens = collect([$homo_sapiens]);
@@ -202,8 +193,8 @@ class TaggableTest extends TestCase
 
     public function test_tag_namespace()
     {
-        $tag1 = Tag::create(['name' => 'public', 'namespace' => 'post']);
-        $tag2 = Tag::create(['name' => 'public', 'namespace' => 'video']);
+        $tag1 = Tag::createOne('public', 'post');
+        $tag2 = Tag::createOne('public', 'video');
 
         $post = Post::factory()->createOne();
         $post->addTag($tag1);
