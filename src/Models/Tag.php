@@ -27,7 +27,7 @@ class Tag extends Model implements TagContract
      */
     public static function findByName($name, $namespace=null): Model
     {
-        return Tag::where(['name' => $name, 'namespace' => $namespace])->where()->first();
+        return Tag::where(['name' => $name, 'namespace' => $namespace])->first();
     }
 
     /**
