@@ -55,8 +55,18 @@ class TaggableTest extends TestCase
         $this->assertFalse($post->hasAnyTags($tags));
         $post->addTags($tags);
 
+        // test has tags via model collection
+        $this->assertTrue($post->hasTag($tags[0]));
         $this->assertTrue($post->hasTags($tags));
-        // $this->assertFalse($post->hasAnyTags($other_tags)); // this test here is a risk test... something is wrong
+
+        // test has tags via string names
+        $names = $tags->pluck('name')->toArray();
+        $this->assertTrue($post->hasTag($names[0]));
+        $this->assertTrue($post->hasTags($names));
+
+        // the next test is a risk test...
+        // something is wrong and needs to be fixed
+        // $this->assertFalse($post->hasAnyTags($other_tags));
         $post->addTag($other_tags[0]);
         $this->assertTrue($post->hasAnyTags($other_tags));
     }
@@ -169,7 +179,7 @@ class TaggableTest extends TestCase
         $ducks->each(add_tag($duck));
         $Sapiens->each(add_tag($sapiens));
 
-        // ok, now...
+        // perform the tests now
         $this->assertFalse($pigeon->hasTag($animal));
         $this->assertFalse($eagle->hasTag($animal));
         $this->assertFalse($duck->hasTag($animal));
@@ -189,8 +199,20 @@ class TaggableTest extends TestCase
         $this->assertTrue($homo_sapiens->hasTag($sapiens, 1));
     }
 
-    // public function test_tag_namespace()
-    // {
-    //     //
-    // }
+    public function test_tag_namespace()
+    {
+        $tag1 = Tag::create(['name' => 'public', 'namespace' => 'post']);
+        $tag2 = Tag::create(['name' => 'public', 'namespace' => 'video']);
+
+        $post = Post::factory()->createOne();
+        $post->addTag($tag1);
+        $post->tagNamespace = 'post';
+        $this->assertTrue($post->hasTag($tag1));
+        $this->assertTrue($post->hasTag('public'));
+        $this->assertFalse($post->hasTag($tag2));
+        $post->tagNamespace = 'video';
+        $this->assertTrue($post->hasTag($tag1));
+        $this->assertFalse($post->hasTag($tag2));
+        $this->assertFalse($post->hasTag('public'));
+    }
 }
