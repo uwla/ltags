@@ -47,8 +47,9 @@ class TaggableTest extends TestCase
         // create tags
         $n = 5;
         $m = 7;
-        $tags = $this->create_tags($n);
-        $other_tags = $this->create_tags($m);
+        $all_tags = $this->create_tags($n+$m);
+        $tags = $all_tags->take($n);
+        $other_tags = $all_tags->diff($tags);
 
         // create post
         $post = Post::factory()->createOne();
@@ -66,7 +67,7 @@ class TaggableTest extends TestCase
 
         // the next test is a risk test...
         // something is wrong and needs to be fixed
-        // $this->assertFalse($post->hasAnyTags($other_tags));
+        $this->assertFalse($post->hasAnyTags($other_tags));
         $post->addTag($other_tags[0]);
         $this->assertTrue($post->hasAnyTags($other_tags));
     }
