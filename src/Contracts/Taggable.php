@@ -94,4 +94,20 @@ interface Taggable
      * @return void
      */
     public function delTags($tags);
+
+    /**
+     * Delete the tags of this model that match the pattern
+     *
+     * @param  string $pattern
+     * @return void
+     */
+    public function delTagsMatching($pattern);
+
+    /**
+     * Delete all tags associated with this model
+     *
+     * @param  mixed $tags
+     * @return void
+     */
+    public function delAllTags();
 }

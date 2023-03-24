@@ -2,6 +2,7 @@
 
 namespace Uwla\Ltags\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Uwla\Ltags\Contracts\Tag as TagContract;
@@ -68,5 +69,21 @@ class Tag extends Model implements TagContract
             $attr[] = ['name' => $name, 'namespace' => $namespace];
         Tag::insert($attr);
         return Tag::whereIn('name', $names)->where('namespace', $namespace)->get();
+    }
+
+    /**
+     * Delete the given tags by name.
+     *
+     * @param  string|array<string>  $name
+     * @param  string                $namespace=null
+     * @return Illuminate\Database\Eloquent\Model;
+     */
+    public static function del($names, $namespace=null)
+    {
+        if (is_string($names))
+            $names = [$names];
+        if (! is_array($names))
+            throw new Exception("First argument must be string or string array");
+        Tag::where('namespace', $namespace)->whereIn('name', $names)->delete();
     }
 }

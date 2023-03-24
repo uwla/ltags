@@ -42,4 +42,13 @@ interface Tag
      * @return Illuminate\Database\Eloquent\Model;
      */
     public static function createMany($names, $namespace=null): Collection;
+
+    /**
+     * Delete the given tags by name.
+     *
+     * @param  string|array<string>  $name
+     * @param  string                $namespace=null
+     * @return Illuminate\Database\Eloquent\Model;
+     */
+    public static function del($name, $namespace=null);
 }

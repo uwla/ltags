@@ -43,4 +43,17 @@ class TagTest extends TestCase
         sort($names); sort($tagNames);
         $this->assertEquals($names, $tagNames);
     }
+
+    public function test_del_tags_by_name()
+    {
+        $names = $this->names;
+
+        // create the tags
+        Tag::createMany($names);
+
+        // delete the tags
+        Tag::del($names);
+        Tag::createOne($names[0]);
+        $this->assertTrue(Tag::all()->count() == 1);
+    }
 }

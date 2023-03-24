@@ -180,9 +180,7 @@ Trait Taggable
     public function delTags($tags)
     {
         $tags = $this->validateTags($tags);
-        $ids = [];
-        foreach ($tags as $tag)
-            $ids[] = $tag->id;
+        $ids = $tags->pluck('id')->toArray();
 
         // delete the tags
         TaggableModel::whereIn('tag_id', $ids)->where([
@@ -191,8 +189,29 @@ Trait Taggable
         ])->delete();
     }
 
-    // -------------------------------------------------------------------------
-    // HELPERS
+    /**
+     * Delete the tags of this model that match the pattern
+     *
+     * @param  string $pattern
+     * @return void
+     */
+    public function delTagsMatching($pattern)
+    {
+        $tags = $this->getTagsMatching($pattern);
+
+        // no tags found
+        if ($tags->count() == 0)
+            return;
+
+        // found some tags
+        $ids = $tags->pluck('id')->toArray();
+
+        // delete the tags
+        TaggableModel::whereIn('tag_id', $ids)->where([
+            'model_id' => $this->id,
+            'model' => $this::class
+        ])->delete();
+    }
 
     /**
      * Delete all tags associated with this model
@@ -208,6 +227,10 @@ Trait Taggable
         ])->get()->pluck('tag_id')->toArray();
         Tag::whereIn('id', $ids)->delete();
     }
+
+    // -------------------------------------------------------------------------
+    // HELPERS
+
 
     // helper to get how many tags of the given tags this model has
     private function hasHowManyTags($tags, $depth)
