@@ -216,7 +216,8 @@ tag "free" in the context of Free Software, in which it means "freedom".
 Ultimately, it is up to the developers to decide  if  `namespaces`  are  needed,
 since they are the ones who know the application requirements.
 
-Let's see how to use them. To create, find or delete a tag for a particular namespace:
+Let's see how to use them. To create, find or delete  a  tag  for  a  particular
+namespace:
 
 ```php
 <?php
@@ -298,13 +299,13 @@ $tag2 = Tag::createOne('public', 'foo'); // foo namespace
 $post->tagNamespace = 'bar';    // set namespace to 'bar'
 $post->addTag('public');        // adds $tag1
 $post->tagNamespace = 'foo';    // set namespace to 'foo'
-$post->hasTag('public');        // returns false, since it is using 'foo' namespace
-$post->hasTag($tag);            // returns true, since the tag model was provided instead of string name
+$post->hasTag('public');        // returns false, since the namespace is 'foo'
+$post->hasTag($tag);            // returns true, since the model was provided
 $post->addTag('public');        // adds $tag2
 $post->tagNamespace = 'bar';    // set namespace to 'bar'
 $post->delTag('public');        // deletes $tag1
 $post->tagNamespace = 'foo';    // set namespace to 'foo'
-$post->hasTag('public');        // returns true, since it is using namespace "foo"
+$post->hasTag('public');        // returns true, since the namespace is 'foo'
 ```
 
 The namespace will only affect the methods to which were passed string names  as
@@ -315,7 +316,80 @@ have the tag ids which uniquely identify the tags.
 
 ## EXAMPLES
 
-TODO: put some examples here.
+Besides using tags to organize and search content such as  videos  or  articles,
+there are several ways in which tags can be quite handy. Let's explore them.
+
+Suppose you have an applications with  posts,  some  of  them  public.  In  your
+Laravel `PostPolicy`, you could do the following to check if a user  is  allowed
+to view a particular post:
+
+```php
+<?php
+
+/**
+ * Determine whether the user can view the post
+ *
+ * @param  App\User  $user
+ * @param  App\Post  $post
+ * @return \Illuminate\Auth\Access\Response|bool
+ */
+public function view(User $user, Post $post)
+{
+    // any user can view a public post
+    if ($post->hasTag('public'))
+        return true;
+
+    // user can view a private post if he is the post owner
+    // the "traditional" way is to put a `user_id` column in the posts table
+    // but of course there are better ways to do this.
+    return $post->user_id == $user->id;
+}
+```
+
+In the example above, we avoid having to add a `is_public` column to the
+posts table.
+
+Another example  is  using  tags  to  tag  users  based  on  their  roles.  Some
+applications just add a `role` column to the users table, then they would  check
+`user->role`. But this creates  an  additional  column.  If  you  don't  need  a
+sophisticated  Access Control System, but  need only a simple  way to categorize
+users based on roles, you could simply add tags to the user.
+
+```php
+<?php
+// instead of
+if ($user->role == 'admin')
+{
+    // do stuff
+}
+// or maybe
+if ($user->role == 'vip')
+{
+    // allow vip content
+}
+
+// you could do the following
+if ($user->hasTag('admin'))
+{
+    // do stuff
+}
+// or maybe
+if ($user->hasTag('vip'))
+{
+    // allow vip content
+}
+```
+
+Other example is an application that promotes programming  contests,  which  may
+have their visibility as public or private, their status as running or  expired,
+and so on. Instead  of  adding  several  columns  in  the  contests  table,  the
+developers may choose to use tags as an additional source of  information  about
+the contests. Of course, whether it is a good decision  or  not  is  up  to  the
+developers to figure out for their particular case.
+
+These are just three simple examples. The possibilities are limited only by  the
+developer's imagination. Tags can be adapted to any context which has  resources
+that can be grouped by some criteria, any context which deals with clusters.
 
 ## CONTRIBUTIONS
 
