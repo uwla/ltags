@@ -24,7 +24,7 @@ $tag = Tag::createOne('foo');           // shorter way
 $tag = Tag::create(['name' => 'foo']);  // default way to create Eloqquent models
 
 // create a multiple tags tag
-$tags = Tag::createMany(['foo', 'bar', 'zoo']); // Eloquent's way is more verbose
+$tags = Tag::createMany(['foo', 'bar', 'zoo']); // Eloquent is way more verbose
 ```
 
 Get tag:
@@ -35,11 +35,26 @@ $tag = Tag::findByName('foo');  // get single tag
 $tags = Tag::findManyByName(['foo', 'bar', 'zoo']); // get many tags
 ```
 
-To update or delete  a  tag  or  tags,  use  `Eloquent`s  methods  `update`  and
-`delete`,  as  provided  by  Laravel's  documentation.  This  package   provides
-alternative ways to create and fetch tags just to make it  more  convenient  and
-less verbose,  but  when  it  comes  to  deleting  or  updating  tags  Laravel's
-interface is straightforward and we cannot make it less not verbose.
+Delete tag or tags by name:
+
+```php
+<?php
+// delete a tag by name
+Tag::del('foo');  // delete single tag
+Tag::del(['foo', 'bar', 'zoo']); // delete multiple tags
+
+// The method above only works for string and string arrays.
+// If you have a Eloquent model or collection and want to delete it or them,
+// do the following:
+$model->delete();
+$models->delete();
+```
+
+To update a tag  or  tags,  use  Eloquent's  `update`  method,  as  provided  by
+Laravel's documentation. This  package  provides  alternative  ways  to  create,
+fetch and delete tags via their names just to make it more convenient  and  less
+verbose,  but  when  it  comes  to  updating   tags   Laravel's   interface   is
+straightforward and we cannot make it less verbose.
 
 ### Tagged Models
 
@@ -76,7 +91,7 @@ To add a tag or tags to a model:
 ```php
 <?php
 // add single tag, which is Eloquent
-$tag = Tag::createOne('public);
+$tag = Tag::createOne('public');
 $post->addTag($tag);
 
 // add single tag by its name, no need to for you to fetch it first
@@ -139,7 +154,7 @@ To remove a tag or tags from a model:
 ```php
 <?php
 // remove single tag, which is Eloquent
-$tag = Tag::createOne('public);
+$tag = Tag::createOne('public');
 $post->delTag($tag);
 
 // remove via tag name
@@ -181,14 +196,24 @@ tag "free" in the context of Free Software, in which it means "freedom".
 Ultimately, it is up to the developers to decide  if  `namespaces`  are  needed,
 since they are the ones who know the application requirements.
 
-Let's see how to use them. To create a tag for a namespace:
+Let's see how to use them. To create, find or delete a tag for a particular namespace:
 
 ```php
 <?php
 // just add the namespace as the second parameter
 $namespace = 'posts';
+
+// create the tags
 $tag = Tag::createOne($name, $namespace); // one tag
 $tags = Tag::createMany($names, $namespace); // multiple tags
+
+// find the tags
+$tag = Tag::findByName($name, $namespace); // one tag
+$tags = Tag::findManyByName($names, $namespace); // multiple tags
+
+// delete the tags
+Tag::del($name, $namespace);  // one tag
+Tag::del($names, $namespace); // multiple tags
 ```
 
 When the  `getTags`  and  `hasTags`  methods  are  called,  they  will  use  the
@@ -266,7 +291,7 @@ The namespace will only affect the methods to which were passed string names  as
 arguments because the tags associated with those  names  needed  to  be  fetched
 behind the scenes. If a Eloquent model or a Eloquent collection is passed  as  a
 argument, the namespace will have no effect because the Eloquent models  already
-have the tags' ids which uniquely identify the tags.
+have the tag ids which uniquely identify the tags.
 
 ## CONTRIBUTIONS
 
