@@ -9,6 +9,26 @@ Simple Tagging system for Laravel.
 - **context aware**: multiple tags with the same label can be created for different contexts.
 - **non intrusive**: a resource can be tagged without any modification to its classes or DB tables.
 
+## INSTALL
+
+Install using composer:
+
+```shell
+composer require uwla/ltags
+```
+
+Publish the ACL table migrations:
+
+```shell
+php artisan vendor:publish --provider="Uwla\Ltags\TagServiceProvider"
+```
+
+Run the migrations:
+
+```shell
+php artisan migrate
+```
+
 ## USAGE
 
 ### Tags
@@ -292,6 +312,10 @@ arguments because the tags associated with those  names  needed  to  be  fetched
 behind the scenes. If a Eloquent model or a Eloquent collection is passed  as  a
 argument, the namespace will have no effect because the Eloquent models  already
 have the tag ids which uniquely identify the tags.
+
+## EXAMPLES
+
+TODO: put some examples here.
 
 ## CONTRIBUTIONS
 
