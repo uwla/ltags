@@ -28,7 +28,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Uwla\\Ltags\\TagsServiceProvider"
+                "Uwla\\Ltags\\TagServiceProvider"
             ]
         }
     }
