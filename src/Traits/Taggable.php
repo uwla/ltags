@@ -23,6 +23,16 @@ Trait Taggable
     }
 
     /**
+     * Get the id column of this model
+     *
+     * @return int
+     */
+    protected static function getModelIdColumn()
+    {
+        return 'id';
+    }
+
+    /**
      * Get the tag namspace for this model. Default is null.
      *
      * @return string
@@ -30,6 +40,87 @@ Trait Taggable
     public function getTagNamespace()
     {
         return null;
+    }
+
+    /**
+     * Get the models tagged with the given tags.
+     *
+     * @param mixed     $tags
+     * @param string    $namespace
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public static function taggedBy($tags, $depth=1, $namespace=null)
+    {
+        // single tag
+        if (is_string($tags) or ($tags instanceof Tag))
+            $tags = [$tags];
+
+        // validate tags
+        $tags = self::validateTags($tags, $namespace);
+        $tag_ids = $tags->pluck('id')->toArray();
+
+        if ($depth > 1)
+        {
+            foreach($tags as $tag)
+            {
+                $nested_tags = $tag->getTags($depth-1);
+                $other_ids = $nested_tags->pluck('id')->toArray();
+                $tag_ids = array_merge($tag_ids, $other_ids);
+            }
+        }
+
+        $model_ids = TaggableModel::select('model_id')
+            ->where('model', self::class)
+            ->whereIn('tag_id', $tag_ids)
+            ->get()->pluck('model_id')->toArray();
+
+        return self::whereIn(self::getModelIdColumn(), $model_ids)->get();
+    }
+
+    /**
+     * Attach the corresponding tags to the given models
+     *
+     * @param  Illuminate\Database\Eloquent\Collection $models
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public static function withTags($models)
+    {
+        $id2model = []; // hashmap ID -> model
+        $ids = [];
+        $id_column = self::getModelIdColumn();
+        foreach ($models as $model)
+        {
+            $id = $model->{$id_column};
+            $id2model[$id] = $model;
+            $ids[] = $id;
+            $model->tags = new Collection(); // no tag initially
+        }
+
+        // get the association of tag & model
+        $tagged = TaggableModel::query()
+            ->where('model', self::class)
+            ->whereIn('model_id', $ids)
+            ->get();
+
+        // get tags by their ids
+        $tag_ids = $tagged->pluck('tag_id')->unique()->toArray();
+        $tags = Tag::whereIn('id', $tag_ids)->get();
+
+        $id2tag = []; // hash map ID -> tag
+        foreach($tags as $tag)
+            $id2tag[$tag->id] = $tag;
+
+        // add the tags to the models, efficiently using the hashmaps
+        foreach ($tagged as $tagged_model)
+        {
+            $model_id = $tagged_model->model_id;
+            $tag_id = $tagged_model->tag_id;
+            $model = $id2model[$model_id];
+            $tag = $id2tag[$tag_id];
+            $model->tags->add($tag);
+        }
+
+        return $models;
     }
 
     /**
@@ -54,8 +145,8 @@ Trait Taggable
         foreach($tags as $tag)
         {
             $nested_tags = $tag->getTags($depth-1);
-            $otherIds = $nested_tags->pluck('id')->toArray();
-            $ids = array_merge($ids, $otherIds);
+            $other_ids = $nested_tags->pluck('id')->toArray();
+            $ids = array_merge($ids, $other_ids);
         }
         $ids = array_unique($ids);
         return Tag::whereIn('id', $ids)->get();
@@ -94,7 +185,7 @@ Trait Taggable
      */
     public function addTags($tags)
     {
-        $tags = $this->validateTags($tags);
+        $tags = $this::validateTags($tags, $this->getTagNamespace());
 
         // insert the tags
         $tagged = [];
@@ -179,7 +270,7 @@ Trait Taggable
      */
     public function delTags($tags)
     {
-        $tags = $this->validateTags($tags);
+        $tags = $this::validateTags($tags, $this->getTagNamespace());
         $ids = $tags->pluck('id')->toArray();
 
         // delete the tags
@@ -235,7 +326,7 @@ Trait Taggable
     // helper to get how many tags of the given tags this model has
     private function hasHowManyTags($tags, $depth)
     {
-        $tags = $this->validateTags($tags);
+        $tags = $this::validateTags($tags, $this->getTagNamespace());
         $this_tags = $this->getTags($depth);
 
         // we will get the ids of the given tags
@@ -280,15 +371,12 @@ Trait Taggable
     }
 
     // tag validation helper
-    private function validateTags($tags): Collection
+    private static function validateTags($tags, $namespace): Collection
     {
         if (! is_countable($tags))
             throw new Exception("Expected a iterable value.");
         if (count($tags) < 1)
             throw new Exception("Got empty tags.");
-
-        // the namespace for the tags
-        $namespace = $this->getTagNamespace();
 
         // get the tag models if string
         if (gettype($tags[0]) == 'string')

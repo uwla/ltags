@@ -5,6 +5,22 @@ namespace Uwla\Ltags\Contracts;
 interface Taggable
 {
     /**
+     * Get the models tagged with the given tags.
+     *
+     * @param mixed     $tags
+     * @param string    $namespace
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public static function taggedBy($tags, $depth=1, $namespace=null);
+
+    /**
+     * Attach the corresponding tags to the given models
+     *
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public static function withTags($models);
+
+    /**
      * Get the tag namspace for this model.
      *
      * @return string
