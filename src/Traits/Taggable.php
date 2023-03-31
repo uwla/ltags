@@ -78,6 +78,63 @@ Trait Taggable
     }
 
     /**
+     * Get the models tagged with at least one of the given tags.
+     *
+     * @param mixed     $tags
+     * @param string    $namespace
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public static function taggedByAll($tags, $depth=1, $namespace=null)
+    {
+        // single tag
+        if (is_string($tags) or ($tags instanceof Tag))
+            $tags = [$tags];
+
+        // validate tags
+        $tags = self::validateTags($tags, $namespace);
+        $tag_ids = $tags->pluck('id')->toArray();
+
+        if ($depth > 1)
+        {
+            foreach($tags as $tag)
+            {
+                $nested_tags = $tag->getTags($depth-1);
+                $other_ids = $nested_tags->pluck('id')->toArray();
+                $tag_ids = array_merge($tag_ids, $other_ids);
+            }
+        }
+
+        // get the tagged information
+        $tagged = TaggableModel::query()
+            ->where('model', self::class)
+            ->whereIn('tag_id', $tag_ids)
+            ->get();
+
+        // count how many tags each tagged model has
+        $counter = [];
+        foreach ($tagged as $tagged_model)
+        {
+            $id = $tagged_model->model_id;
+            if (array_key_exists($id, $counter))
+                $counter[$id] += 1;
+            else
+                $counter[$id] = 1;
+        }
+
+        // collect the id of the models that have all the tags
+        $model_ids = [];
+        $n = $tags->count();
+        foreach ($counter as $key => $value)
+        {
+            if ($value == $n)
+                $model_ids[] = $key;
+        }
+
+        // return the models that have all the tags
+        return self::whereIn(self::getModelIdColumn(), $model_ids)->get();
+    }
+
+    /**
      * Attach the corresponding tags to the given models
      *
      * @param  Illuminate\Database\Eloquent\Collection $models
