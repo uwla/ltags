@@ -207,4 +207,35 @@ class TaggableTest extends TestCase
         $this->assertFalse($post->hasTag($tag2));
         $this->assertFalse($post->hasTag('public'));
     }
+
+    // public function test_get_models_tagged_by()
+    // {
+    //     //
+    // }
+
+    public function test_get_models_with_tags()
+    {
+        // create tags
+        $tags = $this->create_tags(70);
+        $t1 = $tags->random(5);
+        $t2 = $tags->random(15);
+        $t3 = $tags->random(5);
+        $t4 = $tags->random(10);
+
+        // create posts
+        $posts = Post::factory(6)->create();
+        $posts[1]->addTags($t1);
+        $posts[2]->addTags($t2);
+        $posts[3]->addTags($t3);
+        $posts[4]->addTags($t4);
+
+        // test post with tags
+        $posts = Post::withTags($posts);
+        $this->assertTrue($posts[0]->tags->isEmpty());
+        $this->assertTrue($posts[1]->tags->diff($t1)->isEmpty());
+        $this->assertTrue($posts[2]->tags->diff($t2)->isEmpty());
+        $this->assertTrue($posts[3]->tags->diff($t3)->isEmpty());
+        $this->assertTrue($posts[4]->tags->diff($t4)->isEmpty());
+        $this->assertTrue($posts[5]->tags->isEmpty());
+    }
 }

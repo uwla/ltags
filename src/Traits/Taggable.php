@@ -43,7 +43,7 @@ Trait Taggable
     }
 
     /**
-     * Get the models tagged with the given tags.
+     * Get the models tagged with at least one of the given tags.
      *
      * @param mixed     $tags
      * @param string    $namespace
