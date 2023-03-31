@@ -208,10 +208,67 @@ class TaggableTest extends TestCase
         $this->assertFalse($post->hasTag('public'));
     }
 
-    // public function test_get_models_tagged_by()
-    // {
-    //     //
-    // }
+    public function test_get_models_tagged_by()
+    {
+        // create tags
+        $tags = $this->create_tags(50);
+        $t1 = $tags->random(5);
+        $t2 = $tags->random(5);
+        $t3 = $tags->random(5);
+
+        // create posts
+        $posts = Post::factory(20)->create();
+        $posts[0]->addTags($tags);
+        $posts[1]->addTags($tags);
+        $posts[2]->addTags($tags);
+        $posts[3]->addTags($t1);
+        $posts[4]->addTags($t2);
+        $posts[5]->addTags($t3);
+
+        $g3 = $posts->take(3); // group of the first 3 posts
+        $g6 = $posts->take(6); // group of the first 6 posts
+
+        $tagged_posts = Post::taggedByAll($tags);
+        $this->assertTrue($tagged_posts->diff($g3)->isEmpty());
+
+        $tagged_posts = Post::taggedBy($tags);
+        $this->assertTrue($tagged_posts->diff($g6)->isEmpty());
+
+    }
+
+    public function test_get_models_nested_tagged_by()
+    {
+        // now, try nested tags...
+        $posts = Post::factory(20)->create();
+        $tags = $this->create_tags(50);
+        $t1 = $tags->slice(1, 5);
+        $t2 = $tags->slice(6, 10);
+        $t3 = $tags->slice(11, 15);
+        $t4 = $tags->slice(16, 20);
+
+        $t2->first()->addTags($t1);  // first element index is 6
+        $t3->first()->addTags($t2); // first element index is 11
+        $t4->first()->addTags($t3); // first element index is 16
+
+        $posts[0]->addTags($t1);
+        $posts[1]->addTags($t2);
+        $posts[2]->addTags($t3);
+        $posts[3]->addTags($t4);
+
+        $g2 = $posts->take(2); // group of the first 2 posts
+        $g3 = $posts->take(3); // group of the first 2 posts
+        $g4 = $posts->take(4); // group of the first 4 posts
+
+        // test on nested tags.. second parameter is search depth
+        $tagged_posts = Post::taggedBy($t1, 2);
+        $this->assertTrue($tagged_posts->diff($g2)->isEmpty());
+
+        $tagged_posts = Post::taggedBy($t1, 3);
+        $this->assertTrue($tagged_posts->diff($g3)->isEmpty());
+
+        $tagged_posts = Post::taggedBy($t1, 4);
+        $this->assertTrue($tagged_posts->diff($g4)->isEmpty());
+    }
 
     public function test_get_models_with_tags()
     {

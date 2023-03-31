@@ -61,12 +61,9 @@ Trait Taggable
 
         if ($depth > 1)
         {
-            foreach($tags as $tag)
-            {
-                $nested_tags = $tag->getTags($depth-1);
-                $other_ids = $nested_tags->pluck('id')->toArray();
-                $tag_ids = array_merge($tag_ids, $other_ids);
-            }
+            $nested_tags = Tag::taggedBy($tags, $depth - 1);
+            $other_ids = $nested_tags->pluck('id')->toArray();
+            $tag_ids = array_merge($tag_ids, $other_ids);
         }
 
         $model_ids = TaggableModel::select('model_id')
@@ -96,12 +93,9 @@ Trait Taggable
 
         if ($depth > 1)
         {
-            foreach($tags as $tag)
-            {
-                $nested_tags = $tag->getTags($depth-1);
-                $other_ids = $nested_tags->pluck('id')->toArray();
-                $tag_ids = array_merge($tag_ids, $other_ids);
-            }
+            $nested_tags = Tag::taggedBy($tags, $depth - 1);
+            $other_ids = $nested_tags->pluck('id')->toArray();
+            $tag_ids = array_merge($tag_ids, $other_ids);
         }
 
         // get the tagged information
@@ -435,8 +429,12 @@ Trait Taggable
         if (count($tags) < 1)
             throw new Exception("Got empty tags.");
 
+        // array to collection
+        if (! $tags instanceof Collection)
+            $tags = collect($tags);
+
         // get the tag models if string
-        if (gettype($tags[0]) == 'string')
+        if (gettype($tags->first()) == 'string')
         {
             $tags = Tag::findManyByName($tags, $namespace);
             if ($tags->count() < 1)
@@ -444,11 +442,8 @@ Trait Taggable
         }
 
         // check instance type
-        if (! $tags[0] instanceof TagContract)
+        if (! $tags->first() instanceof TagContract)
             throw new Exception("Tag provided must be string or Eloquent model");
-
-        if (is_array($tags))
-            $tags = collect($tags);
 
         return $tags;
     }
