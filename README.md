@@ -8,6 +8,7 @@ Simple Tagging system for Laravel.
 - **nested tags**: a tag can also be tagged, allowing hierarchical structures.
 - **context aware**: multiple tags with the same label can be created for different contexts.
 - **non intrusive**: a resource can be tagged without any modification to its classes or DB tables.
+- **handy API**: handy API to add/set/get/delete tags to a model, and to fetch models by their tags.
 
 ## INSTALL
 
@@ -201,9 +202,61 @@ To set the tags of a model:
 $post->setTags($tags);
 ```
 
+To get the models along with their tags:
+
+```php
+<?php
+// attach the tags to the given posts
+$posts = Post::withTags($posts);
+
+// all posts
+$posts = Post::withTags(Post::all());
+
+// posts that match a condition
+$posts = Post::withTags(Post::where($condition)->get());
+```
+
+In the example above, each model will have a new attribute called `tags`,  which
+is a `Collection` of the model's directed tags (that is,  nested  tags  are  not
+included). You can then apply other operations on  top  of  the  tags  by  using
+Laravel's Collection handy methods, such as `map`, `pluck`, `filter`, etc.
+
+To get the models tagged by a tag, or tags:
+
+```php
+<?php
+// by a single tag
+$posts = Post::taggedBy($tag);      // Eloquent model
+$posts = Post::taggedBy('public');  // name string
+
+// posts tagged by at least one of the given tags
+$posts = Post::taggedBy($tags);               // Eloquent collection
+$posts = Post::taggedBy(['php', 'laravel']);  // array of strings
+
+// you can provide the depth of the search in the second argument
+// default depth is 1
+$posts = Post::taggedBy($tags, 3);
+
+// it is possible to specify the namespace (explained in the next section)
+$posts = Post::taggedBy($tags, 1, 'posts');
+$posts = Post::taggedBy($tags, namespace: 'posts'); // named arguments syntax
+```
+
+In the example above, `taggedBy` will give you all models that are tagged by  at
+least one of the provided tags. If you want the models to be tagged by  all  the
+tags, then use `taggedByAll` static method, which has the exact same  syntax  as
+`taggedBy` (in other words, the expected parameters are the same).
+
+**Notice**:  The  `taggedByAll`  needs  to  check  if  all  are  matched,  while
+`taggedBy` only needs to check one; thus, the `taggedByAll` may be come slow  if
+you are using a relational database and are trying to  fetch  models  tagged  by
+many tags with a high depth value. A graph database is  more  suitable  in  this
+case. But for most applications this won't be a problem even if the `depth`  is,
+let's say, equal to five or six.
+
 ### Namespaces
 
-There can be multiple tags with the same name (aka, label) but  associated  with
+There can be multiple tags with t
 different namespaces (aka, contexts).
 
 For example, the developer may want a "top" tag for posts and a  "top"  tag  for
