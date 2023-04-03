@@ -89,16 +89,27 @@ Trait Taggable
 
         // validate tags
         $tags = self::validateTags($tags, $namespace);
-        $tag_ids = $tags->pluck('id')->toArray();
 
+        // if there are many tags or if the depth is high, then
+        // the code block below for depth>1 becomes very slow
         if ($depth > 1)
         {
-            $nested_tags = Tag::taggedBy($tags, $depth - 1);
-            $other_ids = $nested_tags->pluck('id')->toArray();
-            $tag_ids = array_merge($tag_ids, $other_ids);
+            $models = self::taggedBy($tags->first(), $depth, $namespace);
+            // echo $models->toJson(), "\n";
+            foreach ($tags->skip(1) as $tag)
+            {
+                if ($models->isEmpty()) break;
+                $models = $models->intersect(self::taggedBy($tag, $depth, $namespace));
+                // echo $models->toJson(), "\n";
+            }
+            // ob_flush();
+            return $models;
         }
 
+        // otherwise, if depth == 1 the code is efficient, despite many tags
+
         // get the tagged information
+        $tag_ids = $tags->pluck('id')->toArray();
         $tagged = TaggableModel::query()
             ->where('model', self::class)
             ->whereIn('tag_id', $tag_ids)

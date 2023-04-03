@@ -246,9 +246,9 @@ class TaggableTest extends TestCase
         $t3 = $tags->slice(11, 15);
         $t4 = $tags->slice(16, 20);
 
-        $t2->first()->addTags($t1);  // first element index is 6
-        $t3->first()->addTags($t2); // first element index is 11
-        $t4->first()->addTags($t3); // first element index is 16
+        $t2->first()->addTags($t1->take(2));
+        $t3->first()->addTags($t2);
+        $t4->first()->addTags($t3);
 
         $posts[0]->addTags($t1);
         $posts[1]->addTags($t2);
@@ -259,15 +259,21 @@ class TaggableTest extends TestCase
         $g3 = $posts->take(3); // group of the first 2 posts
         $g4 = $posts->take(4); // group of the first 4 posts
 
-        // test on nested tags.. second parameter is search depth
+        // test tagged by some tags, but not all
         $tagged_posts = Post::taggedBy($t1, 2);
-        $this->assertTrue($tagged_posts->diff($g2)->isEmpty());
-
+        $this->assertTrue($g2->diff($tagged_posts)->isEmpty());
         $tagged_posts = Post::taggedBy($t1, 3);
-        $this->assertTrue($tagged_posts->diff($g3)->isEmpty());
-
+        $this->assertTrue($g3->diff($tagged_posts)->isEmpty());
         $tagged_posts = Post::taggedBy($t1, 4);
-        $this->assertTrue($tagged_posts->diff($g4)->isEmpty());
+        $this->assertTrue($g4->diff($tagged_posts)->isEmpty());
+
+        // test tagged by all
+        $tagged_posts = Post::taggedByAll($t1, 2);
+        $this->assertFalse($g2->diff($tagged_posts)->isEmpty());
+        $tagged_posts = Post::taggedByAll($t1, 3);
+        $this->assertFalse($g3->diff($tagged_posts)->isEmpty());
+        $tagged_posts = Post::taggedByAll($t1, 4);
+        $this->assertFalse($g4->diff($tagged_posts)->isEmpty());
     }
 
     public function test_get_models_with_tags()
