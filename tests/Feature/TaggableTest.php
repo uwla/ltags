@@ -301,4 +301,36 @@ class TaggableTest extends TestCase
         $this->assertTrue($posts[4]->tags->diff($t4)->isEmpty());
         $this->assertTrue($posts[5]->tags->isEmpty());
     }
+
+    public function test_bulk_tag_operations()
+    {
+        $m = 10;
+        $n = 10;
+        $tags = $this->create_tags($n);
+        $posts = Post::factory($m)->create();
+
+        Post::addTagsTo($tags, $posts);
+
+        // get the ids
+        $tids = $tags->pluck('id')->toArray();
+        $pids = $posts->pluck('id')->toArray();
+
+        // there should be m*n rows in tagged table,
+        // since each tag is attached to each model once
+        $k = Taggable::query()
+            ->whereIn('tag_id', $tids)
+            ->whereIn('model_id', $pids)
+            ->where('model', Post::class)
+            ->count();
+        $this->assertTrue($k == $m * $n);
+
+        // delete the tags
+        Post::delTagsFrom($tags, $posts);
+        $this->assertTrue(Taggable::all()->count() == 0);
+
+        // test deleting all tags
+        Post::addTagsTo($tags, $posts);
+        Post::delAllTagsFrom($posts);
+        $this->assertTrue(Taggable::all()->count() == 0);
+    }
 }

@@ -43,6 +43,92 @@ Trait Taggable
     }
 
     /**
+     * Attach the tag to the given models
+     *
+     * @param  mixed $tag
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function addTagTo($tag, $models)
+    {
+        self::addTagsTo([$tag], $models);
+    }
+
+    /**
+     * Attach the tags to the given models
+     *
+     * @param  mixed $tag
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function addTagsTo($tags, $models)
+    {
+        $tags = self::validateTags($tags);
+        $id_column = self::getModelIdColumn();
+        $tagged = [];
+        foreach ($tags as $tag)
+        {
+            foreach ($models as $model)
+            {
+                $tagged[] = [
+                    'tag_id' => $tag->id,
+                    'model_id' => $model->{$id_column},
+                    'model' => self::class
+                ];
+            }
+        }
+
+        TaggableModel::insert($tagged);
+    }
+
+    /**
+     * Delete the association between the given tag and the given models.
+     *
+     * @param  mixed $tags
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function delTagFrom($tag, $models)
+    {
+        self::delTagsFrom([$tag], $models);
+    }
+
+    /**
+     * Delete the association between the given tags and the given models.
+     *
+     * @param  mixed $tags
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function delTagsFrom($tags, $models)
+    {
+        $tags = self::validateTags($tags);
+        $tag_ids = $tags->pluck('id')->toArray();
+        $model_ids = $models->pluck(self::getModelIdColumn())->toArray();
+        TaggableModel::query()
+            ->whereIn('tag_id', $tag_ids)
+            ->whereIn('model_id', $model_ids)
+            ->where('model', self::class)
+            ->delete();
+    }
+
+    /**
+     * Delete the association between the tags associated with the given models.
+     *
+     * @param  mixed $tags
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function delAllTagsFrom($models)
+    {
+        $model_ids = $models->pluck(self::getModelIdColumn())->toArray();
+        TaggableModel::query()
+            ->whereIn('model_id', $model_ids)
+            ->where('model', self::class)
+            ->delete();
+    }
+
+    /**
      * Get the models tagged with at least one of the given tags.
      *
      * @param mixed     $tags
@@ -433,7 +519,7 @@ Trait Taggable
     }
 
     // tag validation helper
-    private static function validateTags($tags, $namespace): Collection
+    private static function validateTags($tags, $namespace=null): Collection
     {
         if (! is_countable($tags))
             throw new Exception("Expected a iterable value.");

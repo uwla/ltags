@@ -30,7 +30,52 @@ interface Taggable
     public static function withTags($models);
 
     /**
-     * Get the tag namspace for this model.
+     * Attach the tag to the given models
+     *
+     * @param  mixed $tag
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function addTagTo($tag, $models);
+
+    /**
+     * Attach the tags to the given models
+     *
+     * @param  mixed $tag
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function addTagsTo($tags, $models);
+
+    /**
+     * Delete the association between the given tag and the given models.
+     *
+     * @param  mixed $tags
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function delTagFrom($tags, $models);
+
+    /**
+     * Delete the association between the given tags and the given models.
+     *
+     * @param  mixed $tags
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function delTagsFrom($tags, $models);
+
+    /**
+     * Delete all the tags associated with the given models.
+     *
+     * @param  mixed $tags
+     * @param  \Illuminate\Database\Eloquent\Collection|array $models
+     * @return void
+     */
+    public static function delAllTagsFrom($models);
+
+    /**
+     * Get the tag namespace for this model.
      *
      * @return string
      */
