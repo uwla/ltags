@@ -23,13 +23,36 @@ Trait Taggable
     }
 
     /**
-     * Get the id column of this model
+     * Get the id column of this model.
+     * Developers may want to override it.
      *
      * @return int
      */
     protected static function getModelIdColumn()
     {
         return 'id';
+    }
+
+    /**
+     * Get the class of the Tag model.
+     * Developers may want to override it.
+     *
+     * @return class
+     */
+    protected static function getTagClass()
+    {
+        return Tag::class;
+    }
+
+    /**
+     * Get the class of the Tagged model.
+     * Developers may want to override it.
+     *
+     * @return class
+     */
+    protected static function getTaggedClass()
+    {
+        return TaggableModel::class;
     }
 
     /**
@@ -78,7 +101,7 @@ Trait Taggable
             }
         }
 
-        TaggableModel::insert($tagged);
+        self::getTaggedClass()::insert($tagged);
     }
 
     /**
@@ -105,7 +128,7 @@ Trait Taggable
         $tags = self::validateTags($tags);
         $tag_ids = $tags->pluck('id')->toArray();
         $model_ids = $models->pluck(self::getModelIdColumn())->toArray();
-        TaggableModel::query()
+        self::getTaggedClass()::query()
             ->whereIn('tag_id', $tag_ids)
             ->whereIn('model_id', $model_ids)
             ->where('model', self::class)
@@ -122,7 +145,7 @@ Trait Taggable
     public static function delAllTagsFrom($models)
     {
         $model_ids = $models->pluck(self::getModelIdColumn())->toArray();
-        TaggableModel::query()
+        self::getTaggedClass()::query()
             ->whereIn('model_id', $model_ids)
             ->where('model', self::class)
             ->delete();
@@ -147,12 +170,12 @@ Trait Taggable
 
         if ($depth > 1)
         {
-            $nested_tags = Tag::taggedBy($tags, $depth - 1);
+            $nested_tags = self::getTagClass()::taggedBy($tags, $depth - 1);
             $other_ids = $nested_tags->pluck('id')->toArray();
             $tag_ids = array_merge($tag_ids, $other_ids);
         }
 
-        $model_ids = TaggableModel::select('model_id')
+        $model_ids = self::getTaggedClass()::select('model_id')
             ->where('model', self::class)
             ->whereIn('tag_id', $tag_ids)
             ->get()->pluck('model_id')->toArray();
@@ -196,7 +219,7 @@ Trait Taggable
 
         // get the tagged information
         $tag_ids = $tags->pluck('id')->toArray();
-        $tagged = TaggableModel::query()
+        $tagged = self::getTaggedClass()::query()
             ->where('model', self::class)
             ->whereIn('tag_id', $tag_ids)
             ->get();
@@ -245,14 +268,14 @@ Trait Taggable
         }
 
         // get the association of tag & model
-        $tagged = TaggableModel::query()
+        $tagged = self::getTaggedClass()::query()
             ->where('model', self::class)
             ->whereIn('model_id', $ids)
             ->get();
 
         // get tags by their ids
         $tag_ids = $tagged->pluck('tag_id')->unique()->toArray();
-        $tags = Tag::whereIn('id', $tag_ids)->get();
+        $tags = self::getTagClass()::whereIn('id', $tag_ids)->get();
 
         $id2tag = []; // hash map ID -> tag
         foreach($tags as $tag)
@@ -281,11 +304,11 @@ Trait Taggable
     {
         $this->validateDepth($depth);
 
-        $ids = TaggableModel::select('tag_id')->where([
+        $ids = self::getTaggedClass()::select('tag_id')->where([
             'model_id' => $this->id,
             'model' => $this::class
         ])->pluck('tag_id')->toArray();
-        $tags = Tag::whereIn('id', $ids)->get();
+        $tags = self::getTagClass()::whereIn('id', $ids)->get();
 
         if ($depth==1)
             return $tags;
@@ -297,7 +320,7 @@ Trait Taggable
             $ids = array_merge($ids, $other_ids);
         }
         $ids = array_unique($ids);
-        return Tag::whereIn('id', $ids)->get();
+        return self::getTagClass()::whereIn('id', $ids)->get();
     }
 
     /**
@@ -345,7 +368,7 @@ Trait Taggable
                 'model' => $this::class
             ];
         }
-        TaggableModel::insert($tagged);
+        self::getTaggedClass()::insert($tagged);
     }
 
     /**
@@ -422,7 +445,7 @@ Trait Taggable
         $ids = $tags->pluck('id')->toArray();
 
         // delete the tags
-        TaggableModel::whereIn('tag_id', $ids)->where([
+        self::getTaggedClass()::whereIn('tag_id', $ids)->where([
             'model_id' => $this->id,
             'model' => $this::class
         ])->delete();
@@ -446,7 +469,7 @@ Trait Taggable
         $ids = $tags->pluck('id')->toArray();
 
         // delete the tags
-        TaggableModel::whereIn('tag_id', $ids)->where([
+        self::getTaggedClass()::whereIn('tag_id', $ids)->where([
             'model_id' => $this->id,
             'model' => $this::class
         ])->delete();
@@ -460,11 +483,11 @@ Trait Taggable
      */
     public function delAllTags()
     {
-        $ids = TaggableModel::where([
+        $ids = self::getTaggedClass()::where([
             'model' => $this::class,
             'model_id' => $this->id,
         ])->get()->pluck('tag_id')->toArray();
-        Tag::whereIn('id', $ids)->delete();
+        self::getTagClass()::whereIn('id', $ids)->delete();
     }
 
     // -------------------------------------------------------------------------
@@ -533,7 +556,7 @@ Trait Taggable
         // get the tag models if string
         if (gettype($tags->first()) == 'string')
         {
-            $tags = Tag::findManyByName($tags, $namespace);
+            $tags = self::getTagClass()::findManyByName($tags, $namespace);
             if ($tags->count() < 1)
                 throw new Exception("The provided tags do not exist.");
         }
