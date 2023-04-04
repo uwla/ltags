@@ -124,6 +124,13 @@ $post->addTag($tags);
 
 // add tags by name
 $post->addTag(['php', 'laravel', 'composer']);
+
+// add a tag or tags to multiple models at once
+// (the second argument must be an Eloquent Collection of the model)
+Post::addTagsTo($tags, $posts);           // tags can be am Eloquent Collection
+Post::addTagsTo(['html', 'css'], $posts); // tags can be an array of strings too
+Post::addTagTo('php', $posts);            // to pass a single tag, call addTagTo
+                                          // instead of addTagsTo (shorter syntax)
 ```
 
 To get a model's tags:
@@ -190,6 +197,16 @@ $post->delTags(['php', 'laravel', 'composer']);
 
 // remove all tags
 $post->delAllTags();
+
+// remove a tag or tags from multiple models at once
+// (the second argument must be an Eloquent Collection of the model)
+Post::delTagsFrom($tags, $posts);           // tags can be an Eloquent Collection
+Post::delTagsFrom(['html', 'css'], $posts); // tags can be an array of strings
+Post::delTagFrom('php', $posts);            // to pass a single tag you can call
+                                            // delTagFrom instead of delTagsFrom
+
+// remove all tags from the given models
+Post::delAllTagFrom($posts);
 ```
 
 To set the tags of a model:
@@ -260,7 +277,7 @@ There can be multiple tags with t
 different namespaces (aka, contexts).
 
 For example, the developer may want a "top" tag for posts and a  "top"  tag  for
-videos (although I personally think it is good enough to have just one "top"  tag
+videos (although I personally think it is good enough to have just one "top" tag
 for both posts and video as long as the developers take proper care).
 
 Another example, there could be a tag "free" for the context of payments  and  a
