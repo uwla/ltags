@@ -384,6 +384,72 @@ behind the scenes. If a Eloquent model or a Eloquent collection is passed  as  a
 argument, the namespace will have no effect because the Eloquent models  already
 have the tag ids which uniquely identify the tags.
 
+### Custom Tag Model
+
+You can use your custom variant for the `Tag` model instead of the default  one,
+which is `Uwla\Ltags\Models\Tag`.
+
+```php
+<?php
+
+namespace App\Models;
+
+use Uwla\Ltags\Models\Tag as BaseTag;
+
+class Tag extends BaseTag
+{
+    // disable timestamps, if you want
+    $timestamps = false;
+
+    // maybe you changed the table name..
+    $table = 'tag';
+}
+```
+
+In order for the `Taggable` trait to use your tag instead of  the  default  one,
+you can override its method `getTagClass` as follow:
+
+```php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Uwla\Ltags\Contracts\Taggable as TaggableContract;
+use Uwla\Ltags\Trait\Taggable
+use App\Models\Tag;
+
+class Post extends Model implements TaggableContract
+{
+    use Taggable;
+
+    protected static function getTagClass()
+    {
+        return Tag::class;
+    }
+}
+```
+
+Instead of doing that for every model, you could  have  your  custom  `Taggable`
+trait as well:
+
+```php
+<?php
+
+namespace App\Traits;
+
+use Uwla\Ltags\Trait\Taggable as BaseTaggable
+use App\Models\Tag;
+
+class Taggable extends BaseTaggable
+{
+    protected static function getTagClass()
+    {
+        return Tag::class;
+    }
+}
+```
+
+Then, use `App\Traits\Taggable` instead of `Uwla\Ltags\Traits\Taggable`.
+
 ## EXAMPLES
 
 Besides using tags to organize and search content such as  videos  or  articles,
