@@ -1,6 +1,6 @@
 # LTAGS
 
-Simple Tagging system for Laravel.
+Tagging system for Laravel.
 
 ## FEATURES
 
@@ -414,7 +414,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Uwla\Ltags\Contracts\Taggable as TaggableContract;
-use Uwla\Ltags\Trait\Taggable
+use Uwla\Ltags\Trait\Taggable;
 use App\Models\Tag;
 
 class Post extends Model implements TaggableContract
