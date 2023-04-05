@@ -278,7 +278,7 @@ Trait Taggable
         $tags = self::getTagClass()::whereIn('id', $tag_ids)->get();
 
         $id2tag = []; // hash map ID -> tag
-        foreach($tags as $tag)
+        foreach ($tags as $tag)
             $id2tag[$tag->id] = $tag;
 
         // add the tags to the models, efficiently using the hashmaps
@@ -536,18 +536,18 @@ Trait Taggable
     private function validateDepth($depth)
     {
         if ($depth < 1)
-            throw new Exception("Depth cannot be less than 1");
+            throw new Exception('Depth cannot be less than 1');
         if ($depth > $this->maxTagDepth())
-            throw new Exception("Depth value is too high");
+            throw new Exception('Depth value is too high');
     }
 
     // tag validation helper
     private static function validateTags($tags, $namespace=null): Collection
     {
         if (! is_countable($tags))
-            throw new Exception("Expected a iterable value.");
+            throw new Exception('Expected a iterable value.');
         if (count($tags) < 1)
-            throw new Exception("Got empty tags.");
+            throw new Exception('Got empty tags.');
 
         // array to collection
         if (! $tags instanceof Collection)
@@ -558,12 +558,12 @@ Trait Taggable
         {
             $tags = self::getTagClass()::findManyByName($tags, $namespace);
             if ($tags->count() < 1)
-                throw new Exception("The provided tags do not exist.");
+                throw new Exception('The provided tags do not exist.');
         }
 
         // check instance type
         if (! $tags->first() instanceof TagContract)
-            throw new Exception("Tag provided must be string or Eloquent model");
+            throw new Exception('Tag provided must be string or Eloquent model');
 
         return $tags;
     }
