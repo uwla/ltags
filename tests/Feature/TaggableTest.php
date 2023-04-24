@@ -300,6 +300,19 @@ class TaggableTest extends TestCase
         $this->assertTrue($posts[3]->tags->diff($t3)->isEmpty());
         $this->assertTrue($posts[4]->tags->diff($t4)->isEmpty());
         $this->assertTrue($posts[5]->tags->isEmpty());
+
+        // test tag names
+        $t1 = $t1->pluck('name');
+        $t2 = $t2->pluck('name');
+        $t3 = $t3->pluck('name');
+        $t4 = $t4->pluck('name');
+        $posts = Post::withTagNames($posts);
+        $this->assertTrue($posts[0]->tags->isEmpty());
+        $this->assertTrue($posts[1]->tags->diff($t1)->isEmpty());
+        $this->assertTrue($posts[2]->tags->diff($t2)->isEmpty());
+        $this->assertTrue($posts[3]->tags->diff($t3)->isEmpty());
+        $this->assertTrue($posts[4]->tags->diff($t4)->isEmpty());
+        $this->assertTrue($posts[5]->tags->isEmpty());
     }
 
     public function test_bulk_tag_operations()
