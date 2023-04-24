@@ -32,6 +32,10 @@ php artisan migrate
 
 ## USAGE
 
+Here we will explain to use this package.  A  demo  app  is  also  available  on
+[uwla/ltags-demo01](https://github.com/uwla/ltags-demo01) to show an example  of
+use case.
+
 ### Tags
 
 Create tag:
@@ -219,19 +223,25 @@ To set the tags of a model:
 $post->setTags($tags);
 ```
 
-To get the models along with their tags:
+To get the models along with their tags or with the name (only) of the tags:
 
 ```php
 <?php
 // attach the tags to the given posts
 $posts = Post::withTags($posts);
+$posts = Post::withTagNames($posts);
 
 // all posts
 $posts = Post::withTags(Post::all());
+$posts = Post::withTagNames(Post::all());
 
 // posts that match a condition
 $posts = Post::withTags(Post::where($condition)->get());
+$posts = Post::withTagNames(Post::where($condition)->get());
 ```
+
+In the second line of each example, only the name of the tag is attached to the
+model, not the tag itself (which is an instance of `Tag`).
 
 In the example above, each model will have a new attribute called `tags`,  which
 is a `Collection` of the model's directed tags (that is,  nested  tags  are  not
@@ -532,7 +542,6 @@ that can be grouped by some criteria, any context which deals with clusters.
 Here is a roadmap of the project:
 
 - fix a risky test
-- maybe add demo apps
 
 ## CONTRIBUTIONS
 
