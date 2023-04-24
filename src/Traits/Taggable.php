@@ -5,6 +5,7 @@ namespace Uwla\Ltags\Traits;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Uwla\Ltags\Models\Tag;
 use Uwla\Ltags\Models\Taggable as TaggableModel;
 use Uwla\Ltags\Contracts\Tag as TagContract;
@@ -251,10 +252,34 @@ Trait Taggable
     /**
      * Attach the corresponding tags to the given models
      *
-     * @param  Illuminate\Database\Eloquent\Collection $models
-     * @return Illuminate\Database\Eloquent\Collection
+     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function withTags($models)
+    {
+        return self::withTagsMapped($models, fn($tag) => $tag);
+    }
+
+    /**
+     * Attach the corresponding tags to the given models
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @param  callable $mapper
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function withTagNames($models)
+    {
+        return self::withTagsMapped($models, fn($tag) => $tag->name);
+    }
+
+    /**
+     * Attach the corresponding tags to the given models, mapping the tags
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @param  callable $mapper
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function withTagsMapped($models, $mapper=null)
     {
         $id2model = []; // hashmap ID -> model
         $ids = [];
@@ -281,6 +306,10 @@ Trait Taggable
         foreach ($tags as $tag)
             $id2tag[$tag->id] = $tag;
 
+        // the mapper will map a tag to a value.
+        if (! is_callable($mapper))
+            throw new InvalidArgumentException("Second param must be callable");
+
         // add the tags to the models, efficiently using the hashmaps
         foreach ($tagged as $tagged_model)
         {
@@ -288,7 +317,7 @@ Trait Taggable
             $tag_id = $tagged_model->tag_id;
             $model = $id2model[$model_id];
             $tag = $id2tag[$tag_id];
-            $model->tags->add($tag);
+            $model->tags->add($mapper($tag));
         }
 
         return $models;

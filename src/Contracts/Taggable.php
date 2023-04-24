@@ -25,9 +25,18 @@ interface Taggable
     /**
      * Attach the corresponding tags to the given models
      *
-     * @return Illuminate\Database\Eloquent\Collection
+     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function withTags($models);
+
+    /**
+     * Attach the corresponding tag names to the given models
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function withTagNames($models);
 
     /**
      * Attach the tag to the given models
