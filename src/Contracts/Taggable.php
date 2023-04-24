@@ -9,7 +9,7 @@ interface Taggable
      *
      * @param mixed     $tags
      * @param string    $namespace
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function taggedBy($tags, $depth=1, $namespace=null);
 
@@ -18,7 +18,7 @@ interface Taggable
      *
      * @param mixed     $tags
      * @param string    $namespace
-     * @return Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function taggedByAll($tags, $depth=1, $namespace=null);
 
@@ -94,7 +94,7 @@ interface Taggable
      * Get the tags associated with this model
      *
      * @param int $depth=1 The depth of the search for nested tags.
-     * @return Illuminate\Database\Eloquent\Collection<Tag>
+     * @return \Illuminate\Database\Eloquent\Collection<Tag>
      */
     public function getTags($depth=1);
 
@@ -103,7 +103,7 @@ interface Taggable
      *
      * @param string    $pattern    The pattern to search for.
      * @param int       $depth=1    The depth of the search for nested tags.
-     * @return Illuminate\Database\Eloquent\Collection<Tag>
+     * @return \Illuminate\Database\Eloquent\Collection<Tag>
      */
     public function getTagsMatching($pattern, $depth=1);
 

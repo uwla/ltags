@@ -24,7 +24,7 @@ class Tag extends Model implements TagContract
      *
      * @param  string $name
      * @param  string $namespace
-     * @return Illuminate\Database\Eloquent\Model;
+     * @return Illuminate\Database\Eloquent\Model
      */
     public static function findByName($name, $namespace=null): Model
     {
@@ -36,7 +36,7 @@ class Tag extends Model implements TagContract
      *
      * @param  array<string> $names
      * @param  string        $namespace
-     * @return Illuminate\Database\Eloquent\Model;
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function findManyByName($names, $namespace=null): Collection
     {
@@ -48,7 +48,7 @@ class Tag extends Model implements TagContract
      *
      * @param  string $name
      * @param  string $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public static function createOne($name, $namespace=null): Model
     {
@@ -60,7 +60,7 @@ class Tag extends Model implements TagContract
      *
      * @param  array<string> $names
      * @param  string        $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function createMany($names, $namespace=null): Collection
     {
@@ -76,7 +76,7 @@ class Tag extends Model implements TagContract
      *
      * @param  string|array<string>  $name
      * @param  string                $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
+     * @return void
      */
     public static function del($names, $namespace=null)
     {
