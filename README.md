@@ -32,7 +32,7 @@ php artisan migrate
 
 ## USAGE
 
-Here we will explain to use this package.  A  demo  app  is  also  available  on
+Here we will explain how to use this package. A demo app is  also  available  on
 [uwla/ltags-demo01](https://github.com/uwla/ltags-demo01) to show an example  of
 use case.
 
@@ -549,4 +549,4 @@ Contributions are welcome. Fork the repository and make a PR.
 
 ## FIND HELP
 
-Open an issue on this package repository on Github. I will be glad to help.
+Open an issue on this package repository on GitHub. I will be glad to help.
