@@ -205,14 +205,11 @@ Trait Taggable
         if ($depth > 1)
         {
             $models = self::taggedBy($tags->first(), $depth, $namespace);
-            // echo $models->toJson(), "\n";
             foreach ($tags->skip(1) as $tag)
             {
                 if ($models->isEmpty()) break;
                 $models = $models->intersect(self::taggedBy($tag, $depth, $namespace));
-                // echo $models->toJson(), "\n";
             }
-            // ob_flush();
             return $models;
         }
 
