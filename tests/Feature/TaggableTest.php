@@ -25,7 +25,7 @@ class TaggableTest extends TestCase
         $tags = $this->create_tags($n);
         $post = Post::factory()->createOne();
         $post->addTags($tags);
-        $tag_ids = $tags->pluck('id')->toArray();
+        $tag_ids = $tags->pluck('id');
         $m = Taggable::query()
             ->whereIn('tag_id', $tag_ids)
             ->where([
@@ -91,7 +91,7 @@ class TaggableTest extends TestCase
         $ids = Taggable::where([
                 'model_id' => $post->id,
                 'model' => $post::class
-            ])->pluck('tag_id')->toArray();
+            ])->pluck('tag_id');
         $candidate = Tag::whereIn('id', $ids)->get();
 
         // by asserting that there is no difference between the collections,
@@ -325,8 +325,8 @@ class TaggableTest extends TestCase
         Post::addTagsTo($tags, $posts);
 
         // get the ids
-        $tids = $tags->pluck('id')->toArray();
-        $pids = $posts->pluck('id')->toArray();
+        $tids = $tags->pluck('id');
+        $pids = $posts->pluck('id');
 
         // there should be m*n rows in tagged table,
         // since each tag is attached to each model once

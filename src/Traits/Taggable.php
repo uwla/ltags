@@ -127,8 +127,8 @@ Trait Taggable
     public static function delTagsFrom($tags, $models)
     {
         $tags = self::validateTags($tags);
-        $tag_ids = $tags->pluck('id')->toArray();
-        $model_ids = $models->pluck(self::getModelIdColumn())->toArray();
+        $tag_ids = $tags->pluck('id');
+        $model_ids = $models->pluck(self::getModelIdColumn());
         self::getTaggedClass()::query()
             ->whereIn('tag_id', $tag_ids)
             ->whereIn('model_id', $model_ids)
@@ -145,7 +145,7 @@ Trait Taggable
      */
     public static function delAllTagsFrom($models)
     {
-        $model_ids = $models->pluck(self::getModelIdColumn())->toArray();
+        $model_ids = $models->pluck(self::getModelIdColumn());
         self::getTaggedClass()::query()
             ->whereIn('model_id', $model_ids)
             ->where('model', self::class)
@@ -167,19 +167,19 @@ Trait Taggable
 
         // validate tags
         $tags = self::validateTags($tags, $namespace);
-        $tag_ids = $tags->pluck('id')->toArray();
+        $tag_ids = $tags->pluck('id');
 
         if ($depth > 1)
         {
             $nested_tags = self::getTagClass()::taggedBy($tags, $depth - 1);
-            $other_ids = $nested_tags->pluck('id')->toArray();
-            $tag_ids = array_merge($tag_ids, $other_ids);
+            $other_ids = $nested_tags->pluck('id');
+            $tag_ids = $tag_ids->merge($other_ids);
         }
 
         $model_ids = self::getTaggedClass()::select('model_id')
             ->where('model', self::class)
             ->whereIn('tag_id', $tag_ids)
-            ->get()->pluck('model_id')->toArray();
+            ->get()->pluck('model_id');
 
         return self::whereIn(self::getModelIdColumn(), $model_ids)->get();
     }
@@ -216,7 +216,7 @@ Trait Taggable
         // otherwise, if depth == 1 the code is efficient, despite many tags
 
         // get the tagged information
-        $tag_ids = $tags->pluck('id')->toArray();
+        $tag_ids = $tags->pluck('id');
         $tagged = self::getTaggedClass()::query()
             ->where('model', self::class)
             ->whereIn('tag_id', $tag_ids)
@@ -296,7 +296,7 @@ Trait Taggable
             ->get();
 
         // get tags by their ids
-        $tag_ids = $tagged->pluck('tag_id')->unique()->toArray();
+        $tag_ids = $tagged->pluck('tag_id')->unique();
         $tags = self::getTagClass()::whereIn('id', $tag_ids)->get();
 
         $id2tag = []; // hash map ID -> tag
@@ -333,7 +333,7 @@ Trait Taggable
         $ids = self::getTaggedClass()::select('tag_id')->where([
             'model_id' => $this->id,
             'model' => $this::class
-        ])->pluck('tag_id')->toArray();
+        ])->pluck('tag_id');
         $tags = self::getTagClass()::whereIn('id', $ids)->get();
 
         if ($depth==1)
@@ -342,10 +342,10 @@ Trait Taggable
         foreach($tags as $tag)
         {
             $nested_tags = $tag->getTags($depth-1);
-            $other_ids = $nested_tags->pluck('id')->toArray();
-            $ids = array_merge($ids, $other_ids);
+            $other_ids = $nested_tags->pluck('id');
+            $ids = $ids->merge($other_ids);
         }
-        $ids = array_unique($ids);
+        $ids = $ids->unique();
         return self::getTagClass()::whereIn('id', $ids)->get();
     }
 
@@ -468,7 +468,7 @@ Trait Taggable
     public function delTags($tags)
     {
         $tags = $this::validateTags($tags, $this->getTagNamespace());
-        $ids = $tags->pluck('id')->toArray();
+        $ids = $tags->pluck('id');
 
         // delete the tags
         self::getTaggedClass()::whereIn('tag_id', $ids)->where([
@@ -492,7 +492,7 @@ Trait Taggable
             return;
 
         // found some tags
-        $ids = $tags->pluck('id')->toArray();
+        $ids = $tags->pluck('id');
 
         // delete the tags
         self::getTaggedClass()::whereIn('tag_id', $ids)->where([
@@ -512,7 +512,7 @@ Trait Taggable
         $ids = self::getTaggedClass()::where([
             'model' => $this::class,
             'model_id' => $this->id,
-        ])->get()->pluck('tag_id')->toArray();
+        ])->get()->pluck('tag_id');
         self::getTagClass()::whereIn('id', $ids)->delete();
     }
 
