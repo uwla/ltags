@@ -2,53 +2,50 @@
 
 namespace Uwla\Ltags\Contracts;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
-
 interface Tag
 {
     /**
-     * Find the given tag by name.
+     * Find the given tag or tags by name.
      *
-     * @param  string $name
-     * @param  string $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
+     * @param  string|array<string> $name
+     * @param  string               $namespace=null
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
      */
-    public static function findByName($name, $namespace=null): Model;
+    public static function findByName($name, $namespace=null);
 
     /**
-     * Find the given tags by name.
+     * Create a single tag name.
+     *
+     * @param  string|array<string> $name
+     * @param  string               $namespace
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public static function createOne($name, $namespace=null);
+
+    /**
+     * Create many tags by name.
      *
      * @param  array<string> $names
-     * @param  string        $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
+     * @param  string        $namespace
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public static function findManyByName($names, $namespace=null): Collection;
+    public static function createMany($names, $namespace=null);
 
     /**
-     * Create a single tag by the given name.
+     * Create a tag or tags by the given name.
      *
-     * @param  string $name
-     * @param  string $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
+     * @param  string|array<string> $name
+     * @param  string               $namespace=null
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
      */
-    public static function createOne($name, $namespace=null): Model;
-
-    /**
-     * Create many tags by the given names.
-     *
-     * @param  array<string> $names
-     * @param  string        $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
-     */
-    public static function createMany($names, $namespace=null): Collection;
+    public static function createByName($name, $namespace=null);
 
     /**
      * Delete the given tags by name.
      *
      * @param  string|array<string>  $name
      * @param  string                $namespace=null
-     * @return Illuminate\Database\Eloquent\Model;
+     * @return void
      */
-    public static function del($name, $namespace=null);
+    public static function delByName($name, $namespace=null);
 }

@@ -4,7 +4,6 @@ namespace Uwla\Ltags\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 use Uwla\Ltags\Contracts\Tag as TagContract;
 use Uwla\Ltags\Traits\Taggable;
 
@@ -20,55 +19,65 @@ class Tag extends Model implements TagContract
     protected $guarded = [];
 
     /**
-     * Find the given tag by name.
+     * Find the given tag or tags by name.
      *
-     * @param  string $name
-     * @param  string $namespace
-     * @return Illuminate\Database\Eloquent\Model
+     * @param  string|array<string> $name
+     * @param  string               $namespace
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
      */
-    public static function findByName($name, $namespace=null): Model
+    public static function findByName($name, $namespace=null)
     {
-        return Tag::where(['name' => $name, 'namespace' => $namespace])->first();
+        if (is_string($name))
+            return self::where(['name' => $name, 'namespace' => $namespace])->first();
+        else if (is_array($name))
+            return self::whereIn('name', $name)->where('namespace', $namespace)->get();
+        throw new Exception('Name should be string or string array');
     }
 
     /**
-     * Find the given tags by name.
+     * Create a single tag name.
+     *
+     * @param  string|array<string> $name
+     * @param  string               $namespace
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public static function createOne($name, $namespace=null)
+    {
+        return self::createByName($name, $namespace);
+    }
+
+    /**
+     * Create many tags by name.
      *
      * @param  array<string> $names
      * @param  string        $namespace
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public static function findManyByName($names, $namespace=null): Collection
+    public static function createMany($names, $namespace=null)
     {
-        return Tag::whereIn('name', $names)->where('namespace', $namespace)->get();
+        return self::createByName($names, $namespace);
     }
 
     /**
      * Create a single tag by the given name.
      *
-     * @param  string $name
-     * @param  string $namespace=null
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param  string|array<string> $name
+     * @param  string               $namespace
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
      */
-    public static function createOne($name, $namespace=null): Model
+    public static function createByName($name, $namespace=null)
     {
-        return Tag::create(['name' => $name, 'namespace' => $namespace]);
-    }
-
-    /**
-     * Create many tags by the given names.
-     *
-     * @param  array<string> $names
-     * @param  string        $namespace=null
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public static function createMany($names, $namespace=null): Collection
-    {
-        $attr = [];
-        foreach ($names as $name)
-            $attr[] = ['name' => $name, 'namespace' => $namespace];
-        Tag::insert($attr);
-        return Tag::whereIn('name', $names)->where('namespace', $namespace)->get();
+        if (is_string($name)) {
+            return Tag::create(['name' => $name, 'namespace' => $namespace]);
+        } else if (is_array($name)) {
+            $names = $name;
+            $attr = [];
+            foreach ($names as $name)
+                $attr[] = ['name' => $name, 'namespace' => $namespace];
+            self::insert($attr);
+            return self::findByName($names, $namespace);
+        }
+        throw new Exception('Name should be string or string array');
     }
 
     /**
@@ -78,12 +87,12 @@ class Tag extends Model implements TagContract
      * @param  string                $namespace=null
      * @return void
      */
-    public static function del($names, $namespace=null)
+    public static function delByName($names, $namespace=null)
     {
         if (is_string($names))
             $names = [$names];
         if (! is_array($names))
-            throw new Exception("First argument must be string or string array");
-        Tag::where('namespace', $namespace)->whereIn('name', $names)->delete();
+            throw new Exception('First argument must be string or string array');
+        self::where('namespace', $namespace)->whereIn('name', $names)->delete();
     }
 }

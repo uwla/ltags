@@ -36,7 +36,7 @@ class TagTest extends TestCase
         $this->assertTrue($tag->name === $names[0]);
 
         // test find many tag
-        $tags = Tag::findManyByName($names);
+        $tags = Tag::findByName($names);
         $tagNames = $tags->pluck('name')->toArray();
 
         // arrays needed to be sorted for the comparison
@@ -52,7 +52,7 @@ class TagTest extends TestCase
         Tag::createMany($names);
 
         // delete the tags
-        Tag::del($names);
+        Tag::delByName($names);
         Tag::createOne($names[0]);
         $this->assertTrue(Tag::all()->count() == 1);
     }

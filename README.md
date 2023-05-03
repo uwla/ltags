@@ -44,11 +44,11 @@ Create tag:
 <?php
 use Uwla\Ltags\Models\Tag;
 
-// create a single tag
+// create single tag
 $tag = Tag::createOne('foo');           // shorter way
 $tag = Tag::create(['name' => 'foo']);  // default way to create Eloqquent models
 
-// create a multiple tags tag
+// create multiple tags tag
 $tags = Tag::createMany(['foo', 'bar', 'zoo']); // Eloquent is way more verbose
 ```
 
@@ -57,7 +57,7 @@ Get tag:
 ```php
 <?php
 $tag = Tag::findByName('foo');  // get single tag
-$tags = Tag::findManyByName(['foo', 'bar', 'zoo']); // get many tags
+$tags = Tag::findByName(['foo', 'bar', 'zoo']); // get many tags
 ```
 
 Delete tag or tags by name:
@@ -65,8 +65,8 @@ Delete tag or tags by name:
 ```php
 <?php
 // delete a tag by name
-Tag::del('foo');  // delete single tag
-Tag::del(['foo', 'bar', 'zoo']); // delete multiple tags
+Tag::delByName('foo');                  // delete single tag
+Tag::delByName(['foo', 'bar', 'zoo']);  // delete multiple tags
 
 // The method above only works for string and string arrays.
 // If you have a Eloquent model or collection and want to delete it or them,
@@ -186,7 +186,7 @@ To remove a tag or tags from a model:
 ```php
 <?php
 // remove single tag, which is Eloquent
-$tag = Tag::createOne('public');
+$tag = Tag::createByName('public');
 $post->delTag($tag);
 
 // remove via tag name
@@ -305,16 +305,16 @@ namespace:
 $namespace = 'posts';
 
 // create the tags
-$tag = Tag::createOne($name, $namespace); // one tag
+$tag = Tag::createOne($name, $namespace);    // one tag
 $tags = Tag::createMany($names, $namespace); // multiple tags
 
 // find the tags
 $tag = Tag::findByName($name, $namespace); // one tag
-$tags = Tag::findManyByName($names, $namespace); // multiple tags
+$tags = Tag::findByName($names, $namespace); // multiple tags
 
 // delete the tags
-Tag::del($name, $namespace);  // one tag
-Tag::del($names, $namespace); // multiple tags
+Tag::delByName($name, $namespace);  // one tag
+Tag::delByName($names, $namespace); // multiple tags
 ```
 
 When the  `getTags`  and  `hasTags`  methods  are  called,  they  will  use  the

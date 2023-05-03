@@ -576,13 +576,14 @@ Trait Taggable
             throw new Exception('Got empty tags.');
 
         // array to collection
+        $original_tags = $tags;
         if (! $tags instanceof Collection)
             $tags = collect($tags);
 
         // get the tag models if string
         if (gettype($tags->first()) == 'string')
         {
-            $tags = self::getTagClass()::findManyByName($tags, $namespace);
+            $tags = self::getTagClass()::findByName($original_tags, $namespace);
             if ($tags->count() < 1)
                 throw new Exception('The provided tags do not exist.');
         }
