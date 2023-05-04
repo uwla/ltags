@@ -8,15 +8,27 @@ interface Taggable
      * Get the models tagged with any of the given tags.
      *
      * @param mixed     $tags
+     * @param int       $depth
      * @param string    $namespace
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function taggedBy($tags, $depth=1, $namespace=null);
 
     /**
+     * Get the models not tagged by any of the given tags.
+     *
+     * @param mixed     $tags
+     * @param int       $depth
+     * @param string    $namespace
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function notTaggedBy($tags, $depth=1, $namespace=null);
+
+    /**
      * Get the models tagged with all of the given tags.
      *
      * @param mixed     $tags
+     * @param int       $depth
      * @param string    $namespace
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -37,6 +49,14 @@ interface Taggable
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function withTagNames($models);
+
+    /**
+     * Return a map tag name -> models
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @return array
+     */
+    public static function byTagNames($models);
 
     /**
      * Attach the tag to the given models

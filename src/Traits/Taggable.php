@@ -185,6 +185,39 @@ Trait Taggable
     }
 
     /**
+     * Get the models not tagged by any of the given tags.
+     *
+     * @param mixed     $tags
+     * @param int       $depth
+     * @param string    $namespace
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function notTaggedBy($tags, $depth=1, $namespace=null)
+    {
+         // single tag
+        if (is_string($tags) or ($tags instanceof Tag))
+            $tags = [$tags];
+
+        // validate tags
+        $tags = self::validateTags($tags, $namespace);
+        $tag_ids = $tags->pluck('id');
+
+        if ($depth > 1)
+        {
+            $nested_tags = self::getTagClass()::taggedBy($tags, $depth - 1);
+            $other_ids = $nested_tags->pluck('id');
+            $tag_ids = $tag_ids->merge($other_ids);
+        }
+
+        $model_ids = self::getTaggedClass()::select('model_id')
+            ->where('model', self::class)
+            ->whereIn('tag_id', $tag_ids)
+            ->get()->pluck('model_id');
+
+        return self::whereNotIn(self::getModelIdColumn(), $model_ids)->get();
+    }
+
+    /**
      * Get the models tagged with at least one of the given tags.
      *
      * @param mixed     $tags
@@ -267,6 +300,29 @@ Trait Taggable
     public static function withTagNames($models)
     {
         return self::withTagsMapped($models, fn($tag) => $tag->name);
+    }
+
+    /**
+     * Return a map tag name -> models
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @return array
+     */
+    public static function byTagNames($models)
+    {
+        $models = self::withTagNames($models);
+        $map = [];
+        foreach ($models as $model)
+        {
+            foreach ($model->tags as $tag)
+            {
+                if (array_key_exists($tag, $map))
+                    $map[$tag][] = $model; // append syntax
+                else
+                    $map[$tag] = [$model];
+            }
+        }
+        return $map;
     }
 
     /**
