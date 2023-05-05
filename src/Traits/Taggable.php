@@ -321,6 +321,7 @@ Trait Taggable
                 else
                     $map[$tag] = [$model];
             }
+            unset($model->tags);
         }
         return $map;
     }

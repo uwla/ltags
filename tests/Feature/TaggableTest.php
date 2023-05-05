@@ -15,7 +15,14 @@ class TaggableTest extends TestCase
     // better to use a helper.
     private function create_tags($n=1)
     {
-        $words = $this->faker()->unique()->words($n);
+        $words = $this->faker('en_US')->unique()->words($n);
+
+        // faker default provider for  `words` is Lorem, which has only 182
+        // unique words. Thus, faker->unique() may not return unique words
+        // see https://github.com/fzaninotto/Faker/issues/1359
+        foreach ($words as $i => $word)
+            $words[$i] = $i . ':' . $word;
+
         return Tag::createMany($words);
     }
 
@@ -55,7 +62,7 @@ class TaggableTest extends TestCase
 
         // test has tags via string names
         $names = $tags->pluck('name')->toArray();
-        // $this->assertTrue($post->hasTag($names[0])); // this is a risky test...
+        $this->assertTrue($post->hasTag($names[0]));
         $this->assertTrue($post->hasTags($names));
 
         // the next test is a risk test...
@@ -218,15 +225,13 @@ class TaggableTest extends TestCase
 
         // create posts
         $posts = Post::factory(20)->create();
-        $posts[0]->addTags($tags);
-        $posts[1]->addTags($tags);
-        $posts[2]->addTags($tags);
+        $g3 = $posts->take(3); // group of the first 3 posts
+        $g6 = $posts->take(6); // group of the first 6 posts
+
+        Post::addTagsTo($tags, $g3);
         $posts[3]->addTags($t1);
         $posts[4]->addTags($t2);
         $posts[5]->addTags($t3);
-
-        $g3 = $posts->take(3); // group of the first 3 posts
-        $g6 = $posts->take(6); // group of the first 6 posts
 
         $tagged_posts = Post::taggedByAll($tags);
         $this->assertTrue($tagged_posts->diff($g3)->isEmpty());
@@ -314,6 +319,45 @@ class TaggableTest extends TestCase
         $this->assertTrue($posts[4]->tags->diff($t4)->isEmpty());
         $this->assertTrue($posts[5]->tags->isEmpty());
     }
+
+
+    public function test_get_models_without_tags()
+    {
+        $tags = $this->create_tags(10);
+        $posts1 = Post::factory(30)->create();
+        $posts2 = Post::factory(30)->create();
+
+        // add tags to the posts1
+        Post::addTagsTo($tags, $posts1);
+
+        // get posts not tagged by the tags
+        $notTagged = Post::notTaggedBy($tags);
+
+        // if the diff is empty, they are equal
+        $this->assertTrue($posts2->diff($notTagged)->isEmpty());
+    }
+
+    public function test_models_mapped_by_tags()
+    {
+        $map = [];
+        $tags = $this->create_tags(15);
+        foreach ($tags as $tag)
+        {
+            $n = random_int(10, 30);
+            $posts = Post::factory($n)->create();
+            Post::addTagTo($tag, $posts);
+            $map[$tag->name] = $posts;
+        }
+        $postsByTag = Post::byTagNames(Post::all());
+
+        foreach ($postsByTag as $tag => $posts)
+        {
+            $ids1 = collect($posts)->pluck('id');
+            $ids2 = $map[$tag]->pluck('id');
+            $this->assertEmpty($ids1->diff($ids2));
+        }
+    }
+
 
     public function test_bulk_tag_operations()
     {
