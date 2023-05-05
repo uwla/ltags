@@ -537,12 +537,6 @@ These are just three simple examples. The possibilities are limited only by  the
 developer's imagination. Tags can be adapted to any context which has  resources
 that can be grouped by some criteria, any context which deals with clusters.
 
-## ROADMAP
-
-Here is a roadmap of the project:
-
-- fix a risky test
-
 ## CONTRIBUTIONS
 
 Contributions are welcome. Fork the repository and make a PR.
