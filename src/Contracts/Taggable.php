@@ -54,9 +54,10 @@ interface Taggable
      * Return a map tag name -> models
      *
      * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @param  \Illuminate\Database\Eloquent\Collection|array<string> $tags
      * @return array
      */
-    public static function byTagNames($models);
+    public static function byTags($models, $tags=[]);
 
     /**
      * Attach the tag to the given models
@@ -117,6 +118,14 @@ interface Taggable
      * @return \Illuminate\Database\Eloquent\Collection<Tag>
      */
     public function getTags($depth=1);
+
+    /**
+     * Get the name of the tags associated with this model
+     *
+     * @param int $depth=1 The depth of the search for nested tags.
+     * @return array
+     */
+    public function getTagNames($depth=1);
 
     /**
      * Get the tags associated with this model that match a pattern.

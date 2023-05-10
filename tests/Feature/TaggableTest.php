@@ -339,8 +339,18 @@ class TaggableTest extends TestCase
 
     public function test_models_mapped_by_tags()
     {
-        $map = [];
+        // posts without tags
+        $posts = Post::factory(100)->create();
+        $postsByTag = Post::byTags($posts);
+        $this->assertEmpty($postsByTag);
+
+        // post without tags, by specific tags
         $tags = $this->create_tags(15);
+        $postsByTag = Post::byTags($posts, $tags);
+        $this->assertEmpty($postsByTag);
+
+        // posts with tags
+        $map = [];
         foreach ($tags as $tag)
         {
             $n = random_int(10, 30);
@@ -348,11 +358,32 @@ class TaggableTest extends TestCase
             Post::addTagTo($tag, $posts);
             $map[$tag->name] = $posts;
         }
-        $postsByTag = Post::byTagNames(Post::all());
 
-        foreach ($postsByTag as $tag => $posts)
+        // by all tags
+        $postsByTag = Post::byTags(Post::all());
+        $this->assertEquals(
+            array_keys($postsByTag),
+            $tags->pluck('name')->toArray(),
+        );
+        foreach ($tags as $tag)
         {
-            $ids1 = collect($posts)->pluck('id');
+            $tag = $tag->name;
+            $ids1 = collect($postsByTag[$tag])->pluck('id');
+            $ids2 = $map[$tag]->pluck('id');
+            $this->assertEmpty($ids1->diff($ids2));
+        }
+
+        // by specific tags
+        $tags = $tags->take(5);
+        $postsByTag = Post::byTags(Post::all(), $tags);
+        $this->assertEquals(
+            array_keys($postsByTag),
+            $tags->pluck('name')->toArray(),
+        );
+        foreach ($tags as $tag)
+        {
+            $tag = $tag->name;
+            $ids1 = collect($postsByTag[$tag])->pluck('id');
             $ids2 = $map[$tag]->pluck('id');
             $this->assertEmpty($ids1->diff($ids2));
         }

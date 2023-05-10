@@ -306,22 +306,60 @@ Trait Taggable
      * Return a map tag name -> models
      *
      * @param  \Illuminate\Database\Eloquent\Collection $models
+     * @param  \Illuminate\Database\Eloquent\Collection|array<string> $tags
      * @return array
      */
-    public static function byTagNames($models)
+    public static function byTags($models, $tags=[])
     {
-        $models = self::withTagNames($models);
-        $map = [];
-        foreach ($models as $model)
+        // if the user did not provide tags,
+        // then use the tags of the models
+        if (count($tags) == 0)
         {
-            foreach ($model->tags as $tag)
+            $models = self::withTagNames($models);
+            $map = [];
+            foreach ($models as $model)
             {
-                if (array_key_exists($tag, $map))
-                    $map[$tag][] = $model; // append syntax
-                else
-                    $map[$tag] = [$model];
+                foreach ($model->tags as $tag)
+                {
+                    if (array_key_exists($tag, $map))
+                        $map[$tag][] = $model; // append syntax
+                    else
+                        $map[$tag] = [$model];
+                }
+                unset($model->tags);
             }
-            unset($model->tags);
+            return $map;
+        }
+
+        // otherwise, use the provided tags
+        $tags = self::validateTags($tags);
+
+        $id2tag_name = [];
+        foreach ($tags as $tag)
+            $id2tag_name[$tag->id] = $tag->name;
+
+        $idcol = self::getModelIdColumn();
+        $id2model  = [];
+        foreach ($models as $model)
+            $id2model[$model->{$idcol}] = $model;
+
+        $map = [];
+        $tids = $tags->pluck('id');
+        $mids = $models->pluck($idcol);
+        $tagged = self::getTaggedClass()::query()
+            ->whereIn('tag_id', $tids)
+            ->whereIn('model_id', $mids)
+            ->where('model', self::class)
+            ->get();
+        foreach ($tagged as $t)
+        {
+            $mid = $t->model_id;
+            $tid = $t->tag_id;
+            $tag_name = $id2tag_name[$tid];
+            $model = $id2model[$mid];
+            if (! array_key_exists($tag_name, $map))
+                $map[$tag_name] = [];
+            $map[$tag_name][] = $model;
         }
         return $map;
     }
@@ -404,6 +442,17 @@ Trait Taggable
         }
         $ids = $ids->unique();
         return self::getTagClass()::whereIn('id', $ids)->get();
+    }
+
+    /**
+     * Get the name of the tags associated with this model
+     *
+     * @param int $depth=1 The depth of the search for nested tags.
+     * @return array
+     */
+    public function getTagNames($depth=1)
+    {
+        return $this->getTags($depth)->pluck('name')->toArray();
     }
 
     /**
