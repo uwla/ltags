@@ -83,9 +83,7 @@ straightforward and we cannot make it less verbose.
 
 ### Tagged Models
 
-Any model can be tagged. The only thing needed is to add  the  `Taggable`  trait
-and make sure the model implements the `TaggableContract` (which is  implemented
-by the trait, so you don't have to worry about that. For example:
+Any model can be tagged. The only thing needed is to add the `Taggable` trait:
 
 ```php
 <?php
@@ -93,20 +91,15 @@ by the trait, so you don't have to worry about that. For example:
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Uwla\Ltags\Contracts\Taggable as TaggableContract;
 use Uwla\Ltags\Trait\Taggable
 
-class Post extends Model implements TaggableContract
+class Post extends Model
 {
     use Taggable;   // just add this
 
     // more code...
 }
 ```
-
-In other words, just add `use Taggable` and you are good to go. It  is  strongly
-recommended to add `implements TaggableContract` to the model's class  in  order
-to ensure proper type hint.
 
 We are going to use a Post model as an example  of  an  application  for  user's
 posts, but it could be any model to be tagged including the user itself!
@@ -329,10 +322,9 @@ Here is an example of a static (aka, does not change) tag namespace:
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Uwla\Ltags\Contracts\Taggable as TaggableContract;
 use Uwla\Ltags\Trait\Taggable
 
-class Post extends Model implements TaggableContract
+class Post extends Model
 {
     use Taggable;   // just add this
 
@@ -352,10 +344,9 @@ Now, an example of a dynamic one:
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Uwla\Ltags\Contracts\Taggable as TaggableContract;
 use Uwla\Ltags\Trait\Taggable
 
-class Post extends Model implements TaggableContract
+class Post extends Model
 {
     use Taggable;   // just add this
 
@@ -420,14 +411,14 @@ In order for the `Taggable` trait to use your tag instead of  the  default  one,
 you can override its method `getTagClass` as follow:
 
 ```php
+<?php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Uwla\Ltags\Contracts\Taggable as TaggableContract;
 use Uwla\Ltags\Trait\Taggable;
 use App\Models\Tag;
 
-class Post extends Model implements TaggableContract
+class Post extends Model
 {
     use Taggable;
 
