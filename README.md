@@ -276,8 +276,7 @@ let's say, equal to five or six.
 
 ### Namespaces
 
-There can be multiple tags with t
-different namespaces (aka, contexts).
+There can be multiple tags with different namespaces (aka, contexts).
 
 For example, the developer may want a "top" tag for posts and a  "top"  tag  for
 videos (although I personally think it is good enough to have just one "top" tag
@@ -483,8 +482,8 @@ public function view(User $user, Post $post)
 }
 ```
 
-In the example above, we avoid having to add a `is_public` column to the
-posts table.
+In the example above, we avoid having to add a `is_public` column to  the  posts
+table.
 
 Another example  is  using  tags  to  tag  users  based  on  their  roles.  Some
 applications just add a `role` column to the users table, then they would  check
