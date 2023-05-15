@@ -615,11 +615,10 @@ Trait Taggable
      */
     public function delAllTags()
     {
-        $ids = self::getTaggedClass()::where([
+        self::getTaggedClass()::where([
             'model' => $this::class,
             'model_id' => $this->id,
-        ])->get()->pluck('tag_id');
-        self::getTagClass()::whereIn('id', $ids)->delete();
+        ])->delete();
     }
 
     // -------------------------------------------------------------------------
