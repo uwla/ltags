@@ -68,7 +68,7 @@ class Tag extends Model implements TagContract
     public static function createByName($name, $namespace=null)
     {
         if (is_string($name)) {
-            return Tag::create(['name' => $name, 'namespace' => $namespace]);
+            return self::create(['name' => $name, 'namespace' => $namespace]);
         } else if (is_array($name)) {
             $names = $name;
             $attr = [];

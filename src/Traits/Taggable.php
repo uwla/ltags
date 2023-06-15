@@ -5,7 +5,6 @@ namespace Uwla\Ltags\Traits;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 use Uwla\Ltags\Models\Tag;
 use Uwla\Ltags\Models\Taggable as TaggableModel;
 use Uwla\Ltags\Contracts\Tag as TagContract;
@@ -89,6 +88,14 @@ Trait Taggable
     {
         $tags = self::validateTags($tags);
         $id_column = self::getModelIdColumn();
+
+        if (is_array($models))
+            $models = collect($models);
+        if ($models->isEmpty())
+            throw new Exception('Models cannot be empty');
+
+        $model_class = $models->first()::class;
+
         $tagged = [];
         foreach ($tags as $tag)
         {
@@ -97,7 +104,7 @@ Trait Taggable
                 $tagged[] = [
                     'tag_id' => $tag->id,
                     'model_id' => $model->{$id_column},
-                    'model' => self::class
+                    'model' => $model_class,
                 ];
             }
         }
@@ -400,7 +407,7 @@ Trait Taggable
 
         // the mapper will map a tag to a value.
         if (! is_callable($mapper))
-            throw new InvalidArgumentException("Second param must be callable");
+            throw new Exception('Second param must be callable');
 
         // add the tags to the models, efficiently using the hashmaps
         foreach ($tagged as $tagged_model)
