@@ -135,11 +135,12 @@ Trait Taggable
     {
         $tags = self::validateTags($tags);
         $tag_ids = $tags->pluck('id');
+        $model_class = $models->first()::class;
         $model_ids = $models->pluck(self::getModelIdColumn());
         self::getTaggedClass()::query()
             ->whereIn('tag_id', $tag_ids)
             ->whereIn('model_id', $model_ids)
-            ->where('model', self::class)
+            ->where('model', $model_class)
             ->delete();
     }
 
@@ -152,10 +153,11 @@ Trait Taggable
      */
     public static function delAllTagsFrom($models)
     {
+        $model_class = $models->first()::class;
         $model_ids = $models->pluck(self::getModelIdColumn());
         self::getTaggedClass()::query()
             ->whereIn('model_id', $model_ids)
-            ->where('model', self::class)
+            ->where('model', $model_class)
             ->delete();
     }
 
@@ -353,10 +355,11 @@ Trait Taggable
         $map = [];
         $tids = $tags->pluck('id');
         $mids = $models->pluck($idcol);
+        $model_class = $models->first()::class;
         $tagged = self::getTaggedClass()::query()
             ->whereIn('tag_id', $tids)
             ->whereIn('model_id', $mids)
-            ->where('model', self::class)
+            ->where('model', $model_class)
             ->get();
         foreach ($tagged as $t)
         {
@@ -392,8 +395,9 @@ Trait Taggable
         }
 
         // get the association of tag & model
+        $model_class = $models->first()::class;
         $tagged = self::getTaggedClass()::query()
-            ->where('model', self::class)
+            ->where('model', $model_class)
             ->whereIn('model_id', $ids)
             ->get();
 
