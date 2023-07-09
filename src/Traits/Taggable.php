@@ -186,7 +186,7 @@ Trait Taggable
         }
 
         $model_ids = self::getTaggedClass()::select('model_id')
-            ->where('model', self::class)
+            ->where('model', static::class)
             ->whereIn('tag_id', $tag_ids)
             ->get()->pluck('model_id');
 
@@ -219,7 +219,7 @@ Trait Taggable
         }
 
         $model_ids = self::getTaggedClass()::select('model_id')
-            ->where('model', self::class)
+            ->where('model', static::class)
             ->whereIn('tag_id', $tag_ids)
             ->get()->pluck('model_id');
 
@@ -260,7 +260,7 @@ Trait Taggable
         // get the tagged information
         $tag_ids = $tags->pluck('id');
         $tagged = self::getTaggedClass()::query()
-            ->where('model', self::class)
+            ->where('model', static::class)
             ->whereIn('tag_id', $tag_ids)
             ->get();
 
