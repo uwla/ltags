@@ -2,7 +2,7 @@
 
 namespace Uwla\Ltags\Contracts;
 
-interface Taggable
+interface TaggableContract
 {
     /**
      * Get the models tagged with any of the given tags.

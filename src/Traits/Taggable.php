@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Uwla\Ltags\Models\Tag;
 use Uwla\Ltags\Models\Taggable as TaggableModel;
-use Uwla\Ltags\Contracts\Tag as TagContract;
+use Uwla\Ltags\Contracts\TagContract;
 
 Trait Taggable
 {

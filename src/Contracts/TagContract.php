@@ -2,7 +2,7 @@
 
 namespace Uwla\Ltags\Contracts;
 
-interface Tag
+interface TagContract
 {
     /**
      * Find the given tag or tags by name.

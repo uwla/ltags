@@ -4,7 +4,7 @@ namespace Uwla\Ltags\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Uwla\Ltags\Contracts\Tag as TagContract;
+use Uwla\Ltags\Contracts\TagContract;
 use Uwla\Ltags\Traits\Taggable;
 
 class Tag extends Model implements TagContract
