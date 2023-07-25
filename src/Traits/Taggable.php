@@ -74,7 +74,7 @@ Trait Taggable
      */
     public static function addTagTo($tag, $models)
     {
-        self::addTagsTo([$tag], $models);
+        static::addTagsTo([$tag], $models);
     }
 
     /**
@@ -86,8 +86,8 @@ Trait Taggable
      */
     public static function addTagsTo($tags, $models)
     {
-        $tags = self::validateTags($tags);
-        $id_column = self::getModelIdColumn();
+        $tags = static::validateTags($tags);
+        $id_column = static::getModelIdColumn();
 
         if (is_array($models))
             $models = collect($models);
@@ -109,7 +109,7 @@ Trait Taggable
             }
         }
 
-        self::getTaggedClass()::insert($tagged);
+        static::getTaggedClass()::insert($tagged);
     }
 
     /**
@@ -121,7 +121,7 @@ Trait Taggable
      */
     public static function delTagFrom($tag, $models)
     {
-        self::delTagsFrom([$tag], $models);
+        static::delTagsFrom([$tag], $models);
     }
 
     /**
@@ -133,11 +133,11 @@ Trait Taggable
      */
     public static function delTagsFrom($tags, $models)
     {
-        $tags = self::validateTags($tags);
+        $tags = static::validateTags($tags);
         $tag_ids = $tags->pluck('id');
         $model_class = $models->first()::class;
-        $model_ids = $models->pluck(self::getModelIdColumn());
-        self::getTaggedClass()::query()
+        $model_ids = $models->pluck(static::getModelIdColumn());
+        static::getTaggedClass()::query()
             ->whereIn('tag_id', $tag_ids)
             ->whereIn('model_id', $model_ids)
             ->where('model', $model_class)
@@ -154,8 +154,8 @@ Trait Taggable
     public static function delAllTagsFrom($models)
     {
         $model_class = $models->first()::class;
-        $model_ids = $models->pluck(self::getModelIdColumn());
-        self::getTaggedClass()::query()
+        $model_ids = $models->pluck(static::getModelIdColumn());
+        static::getTaggedClass()::query()
             ->whereIn('model_id', $model_ids)
             ->where('model', $model_class)
             ->delete();
@@ -175,22 +175,22 @@ Trait Taggable
             $tags = [$tags];
 
         // validate tags
-        $tags = self::validateTags($tags, $namespace);
+        $tags = static::validateTags($tags, $namespace);
         $tag_ids = $tags->pluck('id');
 
         if ($depth > 1)
         {
-            $nested_tags = self::getTagClass()::taggedBy($tags, $depth - 1);
+            $nested_tags = static::getTagClass()::taggedBy($tags, $depth - 1);
             $other_ids = $nested_tags->pluck('id');
             $tag_ids = $tag_ids->merge($other_ids);
         }
 
-        $model_ids = self::getTaggedClass()::select('model_id')
+        $model_ids = static::getTaggedClass()::select('model_id')
             ->where('model', static::class)
             ->whereIn('tag_id', $tag_ids)
             ->get()->pluck('model_id');
 
-        return self::whereIn(self::getModelIdColumn(), $model_ids)->get();
+        return static::whereIn(static::getModelIdColumn(), $model_ids)->get();
     }
 
     /**
@@ -208,22 +208,22 @@ Trait Taggable
             $tags = [$tags];
 
         // validate tags
-        $tags = self::validateTags($tags, $namespace);
+        $tags = static::validateTags($tags, $namespace);
         $tag_ids = $tags->pluck('id');
 
         if ($depth > 1)
         {
-            $nested_tags = self::getTagClass()::taggedBy($tags, $depth - 1);
+            $nested_tags = static::getTagClass()::taggedBy($tags, $depth - 1);
             $other_ids = $nested_tags->pluck('id');
             $tag_ids = $tag_ids->merge($other_ids);
         }
 
-        $model_ids = self::getTaggedClass()::select('model_id')
+        $model_ids = static::getTaggedClass()::select('model_id')
             ->where('model', static::class)
             ->whereIn('tag_id', $tag_ids)
             ->get()->pluck('model_id');
 
-        return self::whereNotIn(self::getModelIdColumn(), $model_ids)->get();
+        return static::whereNotIn(static::getModelIdColumn(), $model_ids)->get();
     }
 
     /**
@@ -240,17 +240,17 @@ Trait Taggable
             $tags = [$tags];
 
         // validate tags
-        $tags = self::validateTags($tags, $namespace);
+        $tags = static::validateTags($tags, $namespace);
 
         // if there are many tags or if the depth is high, then
         // the code block below for depth>1 becomes very slow
         if ($depth > 1)
         {
-            $models = self::taggedBy($tags->first(), $depth, $namespace);
+            $models = static::taggedBy($tags->first(), $depth, $namespace);
             foreach ($tags->skip(1) as $tag)
             {
                 if ($models->isEmpty()) break;
-                $models = $models->intersect(self::taggedBy($tag, $depth, $namespace));
+                $models = $models->intersect(static::taggedBy($tag, $depth, $namespace));
             }
             return $models;
         }
@@ -259,7 +259,7 @@ Trait Taggable
 
         // get the tagged information
         $tag_ids = $tags->pluck('id');
-        $tagged = self::getTaggedClass()::query()
+        $tagged = static::getTaggedClass()::query()
             ->where('model', static::class)
             ->whereIn('tag_id', $tag_ids)
             ->get();
@@ -285,7 +285,7 @@ Trait Taggable
         }
 
         // return the models that have all the tags
-        return self::whereIn(self::getModelIdColumn(), $model_ids)->get();
+        return static::whereIn(static::getModelIdColumn(), $model_ids)->get();
     }
 
     /**
@@ -296,7 +296,7 @@ Trait Taggable
      */
     public static function withTags($models)
     {
-        return self::withTagsMapped($models, fn($tag) => $tag);
+        return static::withTagsMapped($models, fn($tag) => $tag);
     }
 
     /**
@@ -308,7 +308,7 @@ Trait Taggable
      */
     public static function withTagNames($models)
     {
-        return self::withTagsMapped($models, fn($tag) => $tag->name);
+        return static::withTagsMapped($models, fn($tag) => $tag->name);
     }
 
     /**
@@ -324,7 +324,7 @@ Trait Taggable
         // then use the tags of the models
         if (count($tags) == 0)
         {
-            $models = self::withTagNames($models);
+            $models = static::withTagNames($models);
             $map = [];
             foreach ($models as $model)
             {
@@ -341,13 +341,13 @@ Trait Taggable
         }
 
         // otherwise, use the provided tags
-        $tags = self::validateTags($tags);
+        $tags = static::validateTags($tags);
 
         $id2tag_name = [];
         foreach ($tags as $tag)
             $id2tag_name[$tag->id] = $tag->name;
 
-        $idcol = self::getModelIdColumn();
+        $idcol = static::getModelIdColumn();
         $id2model  = [];
         foreach ($models as $model)
             $id2model[$model->{$idcol}] = $model;
@@ -356,7 +356,7 @@ Trait Taggable
         $tids = $tags->pluck('id');
         $mids = $models->pluck($idcol);
         $model_class = $models->first()::class;
-        $tagged = self::getTaggedClass()::query()
+        $tagged = static::getTaggedClass()::query()
             ->whereIn('tag_id', $tids)
             ->whereIn('model_id', $mids)
             ->where('model', $model_class)
@@ -385,7 +385,7 @@ Trait Taggable
     {
         $id2model = []; // hashmap ID -> model
         $ids = [];
-        $id_column = self::getModelIdColumn();
+        $id_column = static::getModelIdColumn();
         foreach ($models as $model)
         {
             $id = $model->{$id_column};
@@ -396,14 +396,14 @@ Trait Taggable
 
         // get the association of tag & model
         $model_class = $models->first()::class;
-        $tagged = self::getTaggedClass()::query()
+        $tagged = static::getTaggedClass()::query()
             ->where('model', $model_class)
             ->whereIn('model_id', $ids)
             ->get();
 
         // get tags by their ids
         $tag_ids = $tagged->pluck('tag_id')->unique();
-        $tags = self::getTagClass()::whereIn('id', $tag_ids)->get();
+        $tags = static::getTagClass()::whereIn('id', $tag_ids)->get();
 
         $id2tag = []; // hash map ID -> tag
         foreach ($tags as $tag)
@@ -436,11 +436,11 @@ Trait Taggable
     {
         $this->validateDepth($depth);
 
-        $ids = self::getTaggedClass()::select('tag_id')->where([
+        $ids = static::getTaggedClass()::select('tag_id')->where([
             'model_id' => $this->id,
             'model' => $this::class
         ])->pluck('tag_id');
-        $tags = self::getTagClass()::whereIn('id', $ids)->get();
+        $tags = static::getTagClass()::whereIn('id', $ids)->get();
 
         if ($depth==1)
             return $tags;
@@ -452,7 +452,7 @@ Trait Taggable
             $ids = $ids->merge($other_ids);
         }
         $ids = $ids->unique();
-        return self::getTagClass()::whereIn('id', $ids)->get();
+        return static::getTagClass()::whereIn('id', $ids)->get();
     }
 
     /**
@@ -511,7 +511,7 @@ Trait Taggable
                 'model' => $this::class
             ];
         }
-        self::getTaggedClass()::insert($tagged);
+        static::getTaggedClass()::insert($tagged);
     }
 
     /**
@@ -588,7 +588,7 @@ Trait Taggable
         $ids = $tags->pluck('id');
 
         // delete the tags
-        self::getTaggedClass()::whereIn('tag_id', $ids)->where([
+        static::getTaggedClass()::whereIn('tag_id', $ids)->where([
             'model_id' => $this->id,
             'model' => $this::class
         ])->delete();
@@ -612,7 +612,7 @@ Trait Taggable
         $ids = $tags->pluck('id');
 
         // delete the tags
-        self::getTaggedClass()::whereIn('tag_id', $ids)->where([
+        static::getTaggedClass()::whereIn('tag_id', $ids)->where([
             'model_id' => $this->id,
             'model' => $this::class
         ])->delete();
@@ -626,7 +626,7 @@ Trait Taggable
      */
     public function delAllTags()
     {
-        self::getTaggedClass()::where([
+        static::getTaggedClass()::where([
             'model' => $this::class,
             'model_id' => $this->id,
         ])->delete();
@@ -699,7 +699,7 @@ Trait Taggable
         // get the tag models if string
         if (gettype($tags->first()) == 'string')
         {
-            $tags = self::getTagClass()::findByName($original_tags, $namespace);
+            $tags = static::getTagClass()::findByName($original_tags, $namespace);
             if ($tags->count() < 1)
                 throw new Exception('The provided tags do not exist.');
         }

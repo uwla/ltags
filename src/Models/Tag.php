@@ -28,9 +28,9 @@ class Tag extends Model implements TagContract
     public static function findByName($name, $namespace=null)
     {
         if (is_string($name))
-            return self::where(['name' => $name, 'namespace' => $namespace])->first();
+            return static::where(['name' => $name, 'namespace' => $namespace])->first();
         else if (is_array($name))
-            return self::whereIn('name', $name)->where('namespace', $namespace)->get();
+            return static::whereIn('name', $name)->where('namespace', $namespace)->get();
         throw new Exception('Name should be string or string array');
     }
 
@@ -43,7 +43,7 @@ class Tag extends Model implements TagContract
      */
     public static function createOne($name, $namespace=null)
     {
-        return self::createByName($name, $namespace);
+        return static::createByName($name, $namespace);
     }
 
     /**
@@ -55,7 +55,7 @@ class Tag extends Model implements TagContract
      */
     public static function createMany($names, $namespace=null)
     {
-        return self::createByName($names, $namespace);
+        return static::createByName($names, $namespace);
     }
 
     /**
@@ -68,14 +68,14 @@ class Tag extends Model implements TagContract
     public static function createByName($name, $namespace=null)
     {
         if (is_string($name)) {
-            return self::create(['name' => $name, 'namespace' => $namespace]);
+            return static::create(['name' => $name, 'namespace' => $namespace]);
         } else if (is_array($name)) {
             $names = $name;
             $attr = [];
             foreach ($names as $name)
                 $attr[] = ['name' => $name, 'namespace' => $namespace];
-            self::insert($attr);
-            return self::findByName($names, $namespace);
+            static::insert($attr);
+            return static::findByName($names, $namespace);
         }
         throw new Exception('Name should be string or string array');
     }
@@ -93,6 +93,6 @@ class Tag extends Model implements TagContract
             $names = [$names];
         if (! is_array($names))
             throw new Exception('First argument must be string or string array');
-        self::where('namespace', $namespace)->whereIn('name', $names)->delete();
+        static::where('namespace', $namespace)->whereIn('name', $names)->delete();
     }
 }
