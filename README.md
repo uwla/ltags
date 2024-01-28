@@ -46,7 +46,7 @@ use Uwla\Ltags\Models\Tag;
 
 // create single tag
 $tag = Tag::createOne('foo');           // shorter way
-$tag = Tag::create(['name' => 'foo']);  // default way to create Eloqquent models
+$tag = Tag::create(['name' => 'foo']);  // default way to create Eloquent models
 
 // create multiple tags tag
 $tags = Tag::createMany(['foo', 'bar', 'zoo']); // Eloquent is way more verbose
