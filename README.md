@@ -32,9 +32,8 @@ php artisan migrate
 
 ## USAGE
 
-Here we will explain how to use this package. A demo app is  also  available  on
-[uwla/ltags-demo01](https://github.com/uwla/ltags-demo01) to show an example  of
-use case.
+This sections explains how to use the package. A demo app is also  available  on
+[uwla/ltags-demo](https://github.com/uwla/ltags-demo) to illustrate use case.
 
 ### Tags
 
